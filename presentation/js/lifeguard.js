@@ -14,7 +14,10 @@ var car = {
     element: null,
     road: null,
     roadPosition: 0,
-    animateCalls: 0
+    animateCalls: 0,
+	
+	hazardFlasherEnabled: false,
+	hazardFlasherOn: false
 };
 
 $(document).ready(function() {
@@ -89,6 +92,24 @@ function animStep(manual) {
             }, 3000, 'easeOutQuad', animStep);
         }
     }
+}
+function enableHazardSystem(enable){
+	car.hazardFlasherEnabled = enable;
+	changeCarImageBlink();
+}
+function changeCarImageBlink(){
+	if(car.hazardFlasherEnabled == true){
+		if(car.hazardFlasherOn == false){
+			car.element.attr("src","img/e-class_warnblinker.png")
+			car.hazardFlasherOn = true;
+			setTimeout(changeCarImageBlink,500)	
+		}
+		else{
+			car.element.attr("src","img/e-class.png")
+			car.hazardFlasherOn = false;
+			setTimeout(changeCarImageBlink,500)
+		}
+	}
 }
 
 function changeLane(dir) {
