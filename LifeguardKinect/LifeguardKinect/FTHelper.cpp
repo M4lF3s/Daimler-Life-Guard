@@ -174,7 +174,7 @@ void FTHelper::CheckCameraInput()
 			HBITMAP bitmap = CreateBitmap(m_colorImage->GetWidth(), m_colorImage->GetHeight(), 1, 32, m_colorImage->GetBuffer());
 
 			FSDK_LoadImageFromHBitmap(&image, bitmap);
-			FSDK_SaveImageToFileW(image, L"C:\\users\\david\\desktop\\img.jpg");
+			//FSDK_SaveImageToFileW(image, L"C:\\users\\david\\desktop\\img.jpg");
 
 			long long IDs[256];
 			long long faceCount = 0;
