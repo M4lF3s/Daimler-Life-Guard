@@ -1,10 +1,12 @@
+var easeInQuad = function (x, t, b, c, d) {
+  return c*(t/=d)*t + b;
+};
+
 $.extend($.easing, {
     easeOutQuad: function (x, t, b, c, d) {
         return -c *(t/=d)*(t-2) + b;
     },
-    easeInQuad: function (x, t, b, c, d) {
-        return c*(t/=d)*t + b;
-    }
+    easeInQuad: easeInQuad
 });
 
 var car = {
@@ -21,14 +23,25 @@ var car = {
 };
 
 $(document).ready(function() {
-    $(window).resize(adjustSlidesSize);
-    adjustSlidesSize();
-    car.element = $('.car');
-    car.road = $('.road');
-    car.lanes = car.road.find('.lane');
-    
-    runCar();
-    roadCam(0.75, 100);
+  $(window).resize(adjustSlidesSize);
+  adjustSlidesSize();
+  car.element = $('.car');
+  car.road = $('.road');
+  car.lanes = car.road.find('.lane');
+
+  // runCar();
+  roadCam(0.75, 100);
+
+  Reveal.addEventListener( 'slidechanged', function( event ) {
+    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+    var curVisible = $(event.currentSlide).hasClass('road-visible');
+    var lastVisible = $(event.previousSlide).hasClass('road-visible');
+    if(!lastVisible && curVisible) {
+      showRoad();
+    } else if(lastVisible && !curVisible) {
+      hideRoad();
+    }
+  });
 });
 
 function adjustSlidesSize() {
@@ -78,7 +91,15 @@ function animStep(manual) {
           car.roadPosition += 50;
           car.lanes.animate({
               'background-position-y': car.roadPosition + '%'
-          }, 4000, 'easeInQuad', animStep);
+          }, {
+            duration: 4000,
+            easing: 'easeInQuad',
+            complete: animStep,
+            progress: function(_, progress) {
+              var angle = easeInQuad(null, progress, -132, 132, 1);
+              $('.needle.needle-left').css('transform', 'scale(0.75) rotate(' + angle + 'deg)');
+            }
+          });
           car.lastState = true;
       }
   } else {
@@ -131,10 +152,11 @@ function changeLane(dir) {
 
 function showRoad() {
   $('.motorway').animate({width: 300}, 500);
-  $('.slides').animate({width: $(window).width() - 300}, 500);
+  $('.slides').animate({width: $(window).width() - 300}, 500).css('zoom', '1');
+
 }
 
 function hideRoad() {
   $('.motorway').animate({width: 0}, 500);
-  $('.slides').animate({width: $(window).width()}, 500);
+  $('.slides').animate({width: $(window).width()}, 500).css('zoom', '1');
 }

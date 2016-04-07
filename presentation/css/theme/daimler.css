@@ -373,6 +373,38 @@ body {
 }
 
 /*********************************************
+ * COCKPIT
+ *********************************************/
+
+.cockpit-dashboard {
+  display: block;
+  position: relative;
+}
+
+/**
+  Mitten der Drehzahlmesser
+  344px | 344px
+  1392px | 344px
+*/
+.cockpit-background {
+  width: 75%;
+}
+
+.needle {
+  position: absolute;
+}
+
+.needle.needle-left {
+  left: 27.27%;
+  top: 51.12%;
+
+  margin-left: -227px;
+  margin-top: -237px;
+  transform: scale(0.75) rotate(-132deg);
+  transform-origin: center;
+}
+
+/*********************************************
  * ANIMATIONS
  *********************************************/
  
