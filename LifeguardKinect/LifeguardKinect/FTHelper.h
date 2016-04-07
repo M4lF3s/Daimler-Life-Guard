@@ -30,7 +30,8 @@ public:
     IFTFaceTracker* GetTracker() { return(m_pFaceTracker);}
     HRESULT GetCameraConfig(FT_CAMERA_CONFIG* cameraConfig);
 
-	FLOAT GetEyesOpen() { return m_fEyesOpen;  }
+	FLOAT GetEyesOpen()			{ return m_fEyesOpen;  }
+	BOOL WasFaceSdkSuccessful() { return m_bFaceSdkSuccess; }
 
 private:
     KinectSensor                m_KinectSensor;
@@ -59,6 +60,7 @@ private:
 
 	HTracker					faceSdkTracker = 0;
 	FLOAT						m_fEyesOpen;
+	BOOL						m_bFaceSdkSuccess = false;
 
     BOOL SubmitFraceTrackingResult(IFTResult* pResult);
     void SetCenterOfImage(IFTResult* pResult);

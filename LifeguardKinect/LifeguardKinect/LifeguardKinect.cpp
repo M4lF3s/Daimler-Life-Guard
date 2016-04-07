@@ -6,6 +6,14 @@
 #include "FTHelper.h"
 #include <Shellapi.h>
 #include <crtdbg.h>
+#include <winhttp.h>
+#include <strsafe.h>
+
+namespace {
+	const WCHAR* SERVER_NAME = L"127.0.0.1"; //L"192.168.10.1";
+	const INTERNET_PORT SERVER_PORT = 3000; //INTERNET_DEFAULT_HTTP_PORT;
+	const WCHAR* SERVER_PATH = L"/measurements";
+}
 
 class LifeguardKinect
 {
@@ -36,6 +44,7 @@ protected:
 	static INT_PTR CALLBACK     About(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL                        PaintWindow(HDC hdc, HWND hWnd);
 	BOOL                        ShowVideo(HDC hdc, int width, int height, int originX, int originY);
+	BOOL						PostDataToServer(IFTResult * pResult, FLOAT* eyesOpen);
 	static void                 FTHelperCallingBack(LPVOID lpParam);
 	static int const            MaxLoadStringChars = 100;
 
@@ -57,6 +66,9 @@ protected:
 	UINT						m_auCount;
 	FT_VECTOR2D*				m_facePoints;
 	UINT						m_facePointCount;
+
+	HINTERNET					m_hSession = NULL;
+	HINTERNET					m_hConnect = NULL;
 };
 
 // Run the SingleFace application.
@@ -119,6 +131,15 @@ BOOL LifeguardKinect::InitInstance(HINSTANCE hInstance, PWSTR lpCmdLine, int nCm
 	ShowWindow(m_hWnd, nCmdShow);
 	UpdateWindow(m_hWnd);
 
+	// Setup HTTP basics
+	// Open Session
+	m_hSession = WinHttpOpen(L"Lifeguard Kinect App/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+
+	// Setup connection information
+	if(m_hSession) {
+		m_hConnect = WinHttpConnect(m_hSession, SERVER_NAME, SERVER_PORT, 0);
+	}
+
 	return SUCCEEDED(m_FTHelper.Init(m_hWnd,
 		FTHelperCallingBack,
 		this,
@@ -155,6 +176,13 @@ void LifeguardKinect::UninitInstance()
 	{
 		m_pVideoBuffer->Release();
 		m_pVideoBuffer = NULL;
+	}
+
+	if(m_hConnect) {
+		WinHttpCloseHandle(m_hConnect);
+	}
+	if(m_hSession) {
+		WinHttpCloseHandle(m_hSession);
 	}
 }
 
@@ -332,41 +360,6 @@ BOOL LifeguardKinect::PaintWindow(HDC hdc, HWND hWnd)
 	// Show the video
 	errCount += !ShowVideo(hdc, width, height, 0, 0);
 
-	/*for(UINT i = 0; i < m_auCount; ++i) {
-		WCHAR buffer[256];
-		wsprintf(buffer, L"AU %d: %d%%", i, int(m_auCoefficients[i] * 100));
-		RECT rect;
-		rect.top = 50 + i * 50;
-		rect.bottom = 70 + i * 50;
-		rect.left = 10;
-		rect.right = 600;
-		DrawText(hdc, buffer, -1, &rect, 0);
-	}*/
-	/*for(UINT i = 0; i < m_facePointCount && i < 40; ++i) {
-		WCHAR buffer[256];
-
-		FT_VECTOR2D& vector = m_facePoints[i];
-		wsprintf(buffer, L"Point %d: %d,%d | %d,%d", i, int(vector.x), int(vector.x * 100.f) % 100, int(vector.y), int(vector.y * 100.f) % 100);
-		RECT rect;
-		rect.top = 20 + i * 25;
-		rect.bottom = 70 + i * 25;
-		rect.left = 10;
-		rect.right = 600;
-		DrawText(hdc, buffer, -1, &rect, 0);
-	}
-	for(UINT i = 40; i < m_facePointCount; ++i) {
-		WCHAR buffer[256];
-
-		FT_VECTOR2D& vector = m_facePoints[i];
-		wsprintf(buffer, L"Point %d: %d,%d | %d,%d", i, int(vector.x), int(vector.x * 100.f) % 100, int(vector.y), int(vector.y * 100.f) % 100);
-		RECT rect;
-		rect.top = 20 + (i - 40) * 25;
-		rect.bottom = 70 + (i - 40) * 25;
-		rect.left = 10;
-		rect.right = 600;
-		DrawText(hdc, buffer, -1, &rect, DT_RIGHT);
-	}*/
-
 	WCHAR buffer[256];
 
 	FLOAT eyesOpen = m_FTHelper.GetEyesOpen();
@@ -391,12 +384,118 @@ void LifeguardKinect::FTHelperCallingBack(PVOID pVoid)
 	if(pApp)
 	{
 		IFTResult* pResult = pApp->m_FTHelper.GetResult();
+		IFTResult* resultParam = nullptr;
+		FLOAT* pEyesOpen = nullptr;
+		FLOAT fEyesOpen;
 		if(pResult && SUCCEEDED(pResult->GetStatus()))
 		{
-			// TODO Send results
-			pResult->Get2DShapePoints(&pApp->m_facePoints, &pApp->m_facePointCount);
+			resultParam = pResult;
+		}
+		if(pApp->m_FTHelper.WasFaceSdkSuccessful()) {
+			fEyesOpen = pApp->m_FTHelper.GetEyesOpen();
+			pEyesOpen = &fEyesOpen;
+		}
+
+		pApp->PostDataToServer(pResult, pEyesOpen);
+	}
+}
+
+BOOL LifeguardKinect::PostDataToServer(IFTResult* pResult, FLOAT* eyesOpen)
+{
+	BOOL bResult = FALSE;
+	HINTERNET hRequest = NULL;
+	BOOL contentAvailable = false;
+	DWORD contentLength = 0;
+	const int CONTENT_BUFFER_SIZE = 2048;
+	CHAR content[CONTENT_BUFFER_SIZE] = {0};
+	strcat_s<CONTENT_BUFFER_SIZE>(content, "{");
+
+	// Prepare the Data to Send
+	// Head pose
+	FLOAT scale, rotation[3], translation[3];
+	if(pResult && SUCCEEDED(pResult->Get3DPose(&scale, rotation, translation))) {
+		if(rotation[0] != 0.f && rotation[1] != 0.f && rotation[2] != 0.f &&
+			translation[0] != 0.f && translation[1] != 0.f && translation[2] != 0.f) {
+			CHAR buffer[2048];
+			StringCbPrintfA(buffer, sizeof(buffer),
+				"\"pose\": {"
+					"\"rotation\": {"
+						"\"x\": %f,"
+						"\"y\": %f,"
+						"\"z\": %f"
+					"},"
+					"\"translation\": {"
+						"\"x\": %f,"
+						"\"y\": %f,"
+						"\"z\": %f"
+					"}"
+				"}",
+				rotation[0], rotation[1], rotation[2],
+				translation[0], translation[1], translation[2]);
+
+			strcat_s<CONTENT_BUFFER_SIZE>(content, buffer);
+			contentAvailable = true;
 		}
 	}
+
+	// Eyes open
+	if(eyesOpen) {
+		if(contentAvailable) { // If a pose is available, add a comma
+			strcat_s<CONTENT_BUFFER_SIZE>(content, ",");
+		}
+		CHAR buffer[2048];
+		StringCbPrintfA(buffer, sizeof(buffer),
+			"\"eyesOpen\": %f", *eyesOpen);
+		strcat_s<CONTENT_BUFFER_SIZE>(content, buffer);
+		contentAvailable = true;
+	}
+
+	strcat_s<CONTENT_BUFFER_SIZE>(content, "}");
+	contentLength = strlen(content);
+
+	if(contentAvailable)
+	{
+		// Create HTTP Request
+		if(m_hConnect) {
+			hRequest = WinHttpOpenRequest(m_hConnect, L"POST", SERVER_PATH, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+		}
+
+		bResult = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, content, contentLength, contentLength, NULL);
+
+		// End the request
+		if(bResult) {
+			bResult = WinHttpReceiveResponse(hRequest, NULL);
+		}
+
+		// Receive Response
+		if(bResult) {
+			DWORD dwSize = 0;
+			WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX, 
+				NULL, &dwSize, WINHTTP_NO_HEADER_INDEX);
+
+			// Allocate memory to receive header
+			if(GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+				WCHAR* headers = new WCHAR[dwSize / sizeof(WCHAR)];
+				bResult = WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_RAW_HEADERS_CRLF, WINHTTP_HEADER_NAME_BY_INDEX, 
+					headers, &dwSize, WINHTTP_NO_HEADER_INDEX);
+
+				// Maybe inspect headers? Nah... :D
+
+				delete[] headers;
+			}
+		}
+
+		if(!bResult) {
+			MessageBox(NULL, L"HTTP POST Error, no idea which one!", L"Error during HTTP POST", MB_OK);
+		}
+
+		// Clean up
+		if(hRequest) {
+			WinHttpCloseHandle(hRequest);
+		}
+	}
+
+	return bResult;
 }
 
 void LifeguardKinect::ParseCmdString(PWSTR lpCmdLine)

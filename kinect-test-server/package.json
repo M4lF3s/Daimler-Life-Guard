@@ -1,0 +1,11 @@
+{
+  "name": "kinect-test-server",
+  "version": "1.0.0",
+  "description": "Simple test server for testing the POST requests of the Kinect Process",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David Bauske",
+  "license": "ISC"
+}
