@@ -10,8 +10,8 @@
 #include <strsafe.h>
 
 namespace {
-	const WCHAR* SERVER_NAME = L"192.168.10.1";
-	const INTERNET_PORT SERVER_PORT = INTERNET_DEFAULT_HTTP_PORT;
+	const WCHAR* SERVER_NAME = L"127.0.0.1"; //L"192.168.10.1";
+	const INTERNET_PORT SERVER_PORT = 3000; //INTERNET_DEFAULT_HTTP_PORT;
 	const WCHAR* SERVER_PATH = L"/measurements";
 }
 
@@ -44,7 +44,7 @@ protected:
 	static INT_PTR CALLBACK     About(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL                        PaintWindow(HDC hdc, HWND hWnd);
 	BOOL                        ShowVideo(HDC hdc, int width, int height, int originX, int originY);
-	BOOL						PostDataToServer(IFTResult * pResult);
+	BOOL						PostDataToServer(IFTResult * pResult, FLOAT* eyesOpen);
 	static void                 FTHelperCallingBack(LPVOID lpParam);
 	static int const            MaxLoadStringChars = 100;
 
@@ -384,50 +384,83 @@ void LifeguardKinect::FTHelperCallingBack(PVOID pVoid)
 	if(pApp)
 	{
 		IFTResult* pResult = pApp->m_FTHelper.GetResult();
+		IFTResult* resultParam = nullptr;
+		FLOAT* pEyesOpen = nullptr;
+		FLOAT fEyesOpen;
 		if(pResult && SUCCEEDED(pResult->GetStatus()))
 		{
-			// TODO Send results
-			pApp->PostDataToServer(pResult);
-			pResult->Get2DShapePoints(&pApp->m_facePoints, &pApp->m_facePointCount);
+			resultParam = pResult;
 		}
+		if(pApp->m_FTHelper.WasFaceSdkSuccessful()) {
+			fEyesOpen = pApp->m_FTHelper.GetEyesOpen();
+			pEyesOpen = &fEyesOpen;
+		}
+
+		pApp->PostDataToServer(pResult, pEyesOpen);
 	}
 }
 
-BOOL LifeguardKinect::PostDataToServer(IFTResult* pResult)
+BOOL LifeguardKinect::PostDataToServer(IFTResult* pResult, FLOAT* eyesOpen)
 {
 	BOOL bResult = FALSE;
 	HINTERNET hRequest = NULL;
+	BOOL contentAvailable = false;
+	DWORD contentLength = 0;
+	const int CONTENT_BUFFER_SIZE = 2048;
+	CHAR content[CONTENT_BUFFER_SIZE] = {0};
+	strcat_s<CONTENT_BUFFER_SIZE>(content, "{");
 
+	// Prepare the Data to Send
+	// Head pose
 	FLOAT scale, rotation[3], translation[3];
-	if(SUCCEEDED(pResult->Get3DPose(&scale, rotation, translation)))
-	{
+	if(pResult && SUCCEEDED(pResult->Get3DPose(&scale, rotation, translation))) {
+		if(rotation[0] != 0.f && rotation[1] != 0.f && rotation[2] != 0.f &&
+			translation[0] != 0.f && translation[1] != 0.f && translation[2] != 0.f) {
+			CHAR buffer[2048];
+			StringCbPrintfA(buffer, sizeof(buffer),
+				"\"pose\": {"
+					"\"rotation\": {"
+						"\"x\": %f,"
+						"\"y\": %f,"
+						"\"z\": %f"
+					"},"
+					"\"translation\": {"
+						"\"x\": %f,"
+						"\"y\": %f,"
+						"\"z\": %f"
+					"}"
+				"}",
+				rotation[0], rotation[1], rotation[2],
+				translation[0], translation[1], translation[2]);
 
+			strcat_s<CONTENT_BUFFER_SIZE>(content, buffer);
+			contentAvailable = true;
+		}
+	}
+
+	// Eyes open
+	if(eyesOpen) {
+		if(contentAvailable) { // If a pose is available, add a comma
+			strcat_s<CONTENT_BUFFER_SIZE>(content, ",");
+		}
+		CHAR buffer[2048];
+		StringCbPrintfA(buffer, sizeof(buffer),
+			"\"eyesOpen\": %f", *eyesOpen);
+		strcat_s<CONTENT_BUFFER_SIZE>(content, buffer);
+		contentAvailable = true;
+	}
+
+	strcat_s<CONTENT_BUFFER_SIZE>(content, "}");
+	contentLength = strlen(content);
+
+	if(contentAvailable)
+	{
 		// Create HTTP Request
 		if(m_hConnect) {
 			hRequest = WinHttpOpenRequest(m_hConnect, L"POST", SERVER_PATH, NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
 		}
 
-		// Prepare the Data to Send
-		WCHAR buffer[2048];
-		StringCbPrintf(buffer, sizeof(buffer),
-			L"{"
-				L"\"pose\": {"
-					L"\"rotation\": {"
-						L"\"x\": %f,"
-						L"\"y\": %f,"
-						L"\"z\": %f"
-					L"},"
-					L"\"translation\": {"
-						L"\"x\": %f,"
-						L"\"y\": %f,"
-						L"\"z\": %f"
-					L"}"
-				L"}"
-			L"}",
-			rotation[0], rotation[1], rotation[2], 
-			translation[0], translation[1], translation[2]);
-		DWORD contentLength = wcslen(buffer);
-		bResult = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, buffer, contentLength, contentLength, NULL);
+		bResult = WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, content, contentLength, contentLength, NULL);
 
 		// End the request
 		if(bResult) {
@@ -453,17 +486,7 @@ BOOL LifeguardKinect::PostDataToServer(IFTResult* pResult)
 		}
 
 		if(!bResult) {
-			DWORD errorMessageID = ::GetLastError();
-			if(errorMessageID != 0) {
-
-				LPWSTR messageBuffer = nullptr;
-				size_t size = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&messageBuffer, 0, NULL);
-
-				MessageBox(NULL, messageBuffer, L"Error during HTTP POST", MB_OK);
-
-				LocalFree(messageBuffer);
-			}
+			MessageBox(NULL, L"HTTP POST Error, no idea which one!", L"Error during HTTP POST", MB_OK);
 		}
 
 		// Clean up

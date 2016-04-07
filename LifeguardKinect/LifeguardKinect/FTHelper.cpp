@@ -88,13 +88,13 @@ HRESULT FTHelper::Stop()
 
 BOOL FTHelper::SubmitFraceTrackingResult(IFTResult* pResult)
 {
+	if(m_CallBack)
+	{
+		(*m_CallBack)(m_CallBackParam);
+	}
+
     if (pResult != NULL && SUCCEEDED(pResult->GetStatus()))
     {
-        if (m_CallBack)
-        {
-            (*m_CallBack)(m_CallBackParam);
-        }
-
         if (m_DrawMask)
         {
             FLOAT* pSU = NULL;
@@ -153,6 +153,7 @@ void FTHelper::SetCenterOfImage(IFTResult* pResult)
 void FTHelper::CheckCameraInput()
 {
     HRESULT hrFT = E_FAIL;
+	m_bFaceSdkSuccess = false;
 
     if (m_KinectSensorPresent && m_KinectSensor.GetVideoBuffer())
     {
@@ -164,17 +165,9 @@ void FTHelper::CheckCameraInput()
         // Do face tracking
         if (SUCCEEDED(hrCopy))
         {
-			/*HBITMAP bitmap = CreateBitmap(m_colorImage->GetWidth(), m_colorImage->GetHeight(), 1, 
-				m_colorImage->GetBytesPerPixel() * 8, m_colorImage->GetBuffer());*/
 			HImage image;
-
-			/*WCHAR buffer[256];
-			swprintf(buffer, sizeof(buffer), L"Buffer size: %d", 0);
-			MessageBox(NULL, buffer, L"Hans", MB_OK);*/
 			HBITMAP bitmap = CreateBitmap(m_colorImage->GetWidth(), m_colorImage->GetHeight(), 1, 32, m_colorImage->GetBuffer());
-
 			FSDK_LoadImageFromHBitmap(&image, bitmap);
-			//FSDK_SaveImageToFileW(image, L"C:\\users\\david\\desktop\\img.jpg");
 
 			long long IDs[256];
 			long long faceCount = 0;
@@ -188,6 +181,7 @@ void FTHelper::CheckCameraInput()
 				FSDK_GetValueConfidence(AttributeValues, "EyesOpen", &ConfidenceEyesOpen);
 
 				m_fEyesOpen = ConfidenceEyesOpen;
+				m_bFaceSdkSuccess = true;
 			}
 
             FT_SENSOR_DATA sensorData(m_colorImage, m_depthImage, m_KinectSensor.GetZoomFactor(), m_KinectSensor.GetViewOffSet());
@@ -210,7 +204,7 @@ void FTHelper::CheckCameraInput()
     }
 
     m_LastTrackSucceeded = SUCCEEDED(hrFT) && SUCCEEDED(m_pFTResult->GetStatus());
-    if (m_LastTrackSucceeded)
+    if (m_LastTrackSucceeded || m_bFaceSdkSuccess)
     {
         SubmitFraceTrackingResult(m_pFTResult);
     }
