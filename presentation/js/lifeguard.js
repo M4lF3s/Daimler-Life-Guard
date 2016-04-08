@@ -41,6 +41,12 @@ $(document).ready(function() {
       hideRoad();
     }
   });
+
+  Reveal.addEventListener('ready', function (e) {
+    if($(e.currentSlide).hasClass('road-visible')) {
+      showRoad();
+    }
+  });
 });
 
 function roadCam(scale, translate) {
@@ -85,7 +91,7 @@ function animStep(manual) {
       }, stepDuration, 'linear', animStep);
 
       if(parseInt(otherCars.css('margin-top')) > 4000) {
-        otherCars.css('margin-top', '-600px');
+        otherCars.css('margin-top', '-1500px');
       } else {
         otherCars.animate({'margin-top': '+=266'}, stepDuration, 'linear');
       }

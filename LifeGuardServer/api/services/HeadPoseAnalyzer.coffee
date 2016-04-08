@@ -8,5 +8,5 @@ module.exports =
       1
     else if pose.rotation.z > 50
       1
-    else
+    else 
       0

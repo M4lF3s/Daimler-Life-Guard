@@ -3,6 +3,7 @@ var chart;
 var dpsmuscle = [];
 var chartmuscle = [];
 var dataLength = 40;
+var dataLengthMuscle = 400;
 var updateInterval = 100;
 
 function chartBuilder() {
@@ -46,21 +47,39 @@ function updateChart() {
     }
 
     //Muskelwerte
-    dpsmuscle.push({
-      x: time,
-      y: data.muscleActivity
-    });
-    if (dpsmuscle.length > dataLength) {
+    if(Array.isArray(data.muscleActivity)) {
+      var mapped = data.muscleActivity.map(function(a) {
+        return {
+          x: time,
+          y: a
+        };
+      });
+      jQuery.each(mapped, function (index, obj) {
+        dpsmuscle.push(obj);
+      });
+    } else {
+      dpsmuscle.push({
+        x: time,
+        y: data.muscleActivity
+      });
+    }
+    while(dpsmuscle.length > dataLengthMuscle) {
       dpsmuscle.shift();
     }
-    
+
     //DER WICHTIGE RENDER BEFEHL OHNE TOT ENDE AUS
     chart.render();
     chartmuscle.render();
+
+    if(data.isSeizure === true) {
+      showWarning('severe');
+    } else if(data.isSeizure === false) {
+      showWarning();
+    }
   });
 }
 
-window.onload = function () {
+$(document).ready(function() {
   chartBuilder();
   chartBuilderMuscle();
 
@@ -72,4 +91,4 @@ window.onload = function () {
   setInterval(function () {
     updateChart()
   }, updateInterval);
-};
+});
