@@ -1,4 +1,6 @@
 module.export =
-  analyze: (muscle) ->
-    # TODO: implement this !!
-    0
+  analyze: (isSeizure) ->
+    if isSeizure
+      1
+    else
+      0

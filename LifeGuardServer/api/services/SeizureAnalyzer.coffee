@@ -1,7 +1,7 @@
 module.exports =
   warntimeSeizure: null
 
-  analyze: (isSeizure) ->
+  analyze: (sensorAnalyzers) ->
     warning = false
     critical = false
     date = Date.now()
@@ -10,7 +10,7 @@ module.exports =
       warning = true
       if this.warntime == null
         this.warntimeSeizure = date
-      if (date - this.warntimeSeizure) >= 5000
+      if (date - this.warntimeSeizure) >= 2500
         critical = true
 
     seizureWarning: warning
