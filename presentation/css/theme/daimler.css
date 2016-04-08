@@ -305,6 +305,11 @@ body {
   float: left;
 }
 
+.col-12 {
+  width: 100%;
+  float: left;
+}
+
 .text-center {
   text-align: center;
 }
@@ -325,6 +330,10 @@ body {
 
 .reveal .border-right {
   border-right: 1px solid white;
+}
+
+.canvasjs-chart-credit {
+  display: none !important;
 }
 
 /*********************************************
@@ -382,14 +391,20 @@ body {
   transition: left 1s ease-in-out, transform 0.3s ease;
 }
 
-.motorway .car.other-car {
+.motorway .all-other-cars {
   left: 425px;
+  position: absolute;
+  width: 150px;
+}
 
-  animation-name: other-car-driving;
-  animation-duration: 15s;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  transition: animation-duration 1s;
+.motorway .car.other-car {
+  /*left: 425px;*/
+
+  /*animation-name: other-car-driving;*/
+  /*animation-duration: 15s;*/
+  /*animation-iteration-count: infinite;*/
+  /*animation-timing-function: linear;*/
+  /*transition: animation-duration 1s;*/
 }
 
 .reveal-container {
