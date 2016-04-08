@@ -5,6 +5,7 @@ import time
 import urllib2
 import Queue
 import sensors
+import socket
 
 
 class JsonTalker:
@@ -14,10 +15,12 @@ class JsonTalker:
     @staticmethod
     def send(ip, message):
         try:
-            r = urllib2.Request(ip, json.dumps(message), {"Content-Type": "application/json"})
+            r = urllib2.Request(ip, json.dumps(message, separators=(',', ':')), {"Content-Type": "application/json"})
             urllib2.urlopen(r)
         except urllib2.URLError as e:
             print(e.reason())
+        except socket.error as e:
+            print(e.message)
 
 
 class PostProcessor:
@@ -57,14 +60,14 @@ class PostProcessor:
             return False
         self.muscle_smo_sig = 199. / 200. * self.muscle_smo_sig + 1. / 200. * (new_val)
 
-        if new_val > self.muscle_smo_sig * 1.2 or new_val < self.muscle_smo_sig * 0.8:
+        if new_val > self.muscle_smo_sig * 1.2 or new_val < self.muscle_smo_sig * 0.65:
             return True
         return False
 
     def post_acc(self, z_raw):
         z = PostProcessor._two_comp(z_raw[0], z_raw[1])
 
-        self.acc_smo_sig = 49. / 50. * self.acc_smo_sig + 1. / 50. * abs(z - self.acc_last_z)
+        self.acc_smo_sig = 74 / 75. * self.acc_smo_sig + 1. / 75. * abs(z - self.acc_last_z)
         self.acc_last_z = z
 
         if self.acc_smo_sig > 18:
@@ -126,6 +129,7 @@ if __name__ == '__main__':
             muscle_adc = muscle_queue.get_nowait()
             muscle_adcs.append(muscle_adc)
             is_seizure = post.post_muscle(muscle_adc)
+            print(is_seizure)
         except Queue.Empty:
             pass
 
@@ -136,7 +140,7 @@ if __name__ == '__main__':
 
         if time.time() - last_send > 0.1:
             message = {"muscleActivity": muscle_adcs, "isSeizure": is_seizure, "pulse": bpm,
-                       "pulseActivity": ekg_adcs, "isWheelTouched": is_contacted, "isShaking": is_shaking}
+                       "pulseActivity": [-i for i in ekg_adcs], "isWheelTouched": is_contacted, "isShaking": is_shaking}
             JsonTalker.send('http://192.168.2.108:1337/measurements/', message)
             last_send = time.time()
             muscle_adcs = []
