@@ -34,6 +34,23 @@ class MuscleActivity(multiprocessing.Process):
             time.sleep(0.02)
 
 
+class ContactSensor(multiprocessing.Process):
+    def __init__(self, queue, pin):
+        super(ContactSensor, self).__init__()
+        self.queue = queue
+        self.adc = mraa.Aio(pin)
+        os.nice(-20)
+
+    def run(self):
+        while True:
+            value = self.adc.read()
+            if value > 500:
+                self.queue.put(True)
+            else:
+                self.queue.put(False)
+            time.sleep(0.5)
+
+
 class Acc(multiprocessing.Process):
     def __init__(self, queue):
         super(Acc, self).__init__()

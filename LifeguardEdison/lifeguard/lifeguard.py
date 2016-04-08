@@ -3,7 +3,7 @@ import multiprocessing
 import os
 import time
 import urllib2
-
+import Queue
 import sensors
 
 
@@ -79,8 +79,9 @@ if __name__ == '__main__':
     last_send = time.time()
 
     # setup EKG
-    # ekg_queue = multiprocessing.Queue(100)
-    # ekg = sensors.EKG(ekg_queue, 0).start()
+    ekg_queue = multiprocessing.Queue(100)
+    ekg = sensors.EKG(ekg_queue, 0).start()
+    bpm = None
 
     # setup Acc
     # acc_queue = multiprocessing.Queue(100)
@@ -89,19 +90,35 @@ if __name__ == '__main__':
     # setup Muscle
     muscle_queue = multiprocessing.Queue(100)
     muscle = sensors.MuscleActivity(muscle_queue, 1).start()
+    muscle_adc = None
+    is_seizure = None
+
+    # setup contact sensor
+    contact_queue = multiprocessing.Queue(100)
+    contact = sensors.ContactSensor(contact_queue, 2).start()
+    is_contacted = None
 
     while True:
-        # ekg_time, ekg_adc = ekg_queue.get()
-        # print(str(ekg_time) + ";" + str(ekg_adc))
-        # bpm = post.post_ekg(ekg_time, -ekg_adc)
+        ekg_time, ekg_adc = ekg_queue.get()
+        bpm = post.post_ekg(ekg_time, -ekg_adc)
 
         # acc_raw = acc_queue.get()
         # x, y, z = post.post_acc(acc_raw)
         # print(str(x) + ";" + str(y) + ";" + str(z))
 
-        muscle_adc = muscle_queue.get()
-        is_seizure = post.post_muscle(muscle_adc)
+        try:
+            muscle_adc = muscle_queue.get_nowait()
+            is_seizure = post.post_muscle(muscle_adc)
+        except Queue.Empty:
+            pass
+        try:
+            is_contacted = contact_queue.get_nowait()
+        except Queue.Empty:
+            pass
 
         if time.time() - last_send > 0.1:
-            message = {"muscleActivity": muscle_adc, "isSeizure": is_seizure}
+            message = {"muscleActivity": muscle_adc, "isSeizure": is_seizure, "pulse": bpm,
+                       "isWheelTouched": is_contacted}
+
             JsonTalker.send('http://192.168.2.108:1337/measurements/', message)
+            last_send = time.time()
