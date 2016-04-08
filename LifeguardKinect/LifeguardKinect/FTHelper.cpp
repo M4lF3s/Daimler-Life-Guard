@@ -166,12 +166,12 @@ void FTHelper::CheckCameraInput()
         if (SUCCEEDED(hrCopy))
         {
 			HImage image;
-			HBITMAP bitmap = CreateBitmap(m_colorImage->GetWidth(), m_colorImage->GetHeight(), 1, 32, m_colorImage->GetBuffer());
-			FSDK_LoadImageFromHBitmap(&image, bitmap);
+			/*HBITMAP bitmap = CreateBitmap(m_colorImage->GetWidth(), m_colorImage->GetHeight(), 1, 32, m_colorImage->GetBuffer());
+			FSDK_LoadImageFromHBitmap(&image, bitmap);*/
 
 			long long IDs[256];
 			long long faceCount = 0;
-			FSDK_FeedFrame(faceSdkTracker, 0, image, &faceCount, IDs, sizeof(IDs));
+			//FSDK_FeedFrame(faceSdkTracker, 0, image, &faceCount, IDs, sizeof(IDs));
 
 			if(faceCount > 0) {
 				char AttributeValues[1024];
@@ -199,7 +199,7 @@ void FTHelper::CheckCameraInput()
                 hrFT = m_pFaceTracker->StartTracking(&sensorData, NULL, hint, m_pFTResult);
             }
 
-			FSDK_FreeImage(image);
+			//FSDK_FreeImage(image);
         }
     }
 
