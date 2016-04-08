@@ -31,6 +31,7 @@ class PostProcessor:
         self.ekg_pulse_bpm = -1
 
         # muscle variables
+        self.muscle_smo_sig = 0
 
     def post_ekg(self, t, new_val):
         self.ekg_smo_sig += 1. / 15. * (new_val - self.ekg_last_val)
@@ -46,6 +47,13 @@ class PostProcessor:
         self.ekg_last_val = new_val
         return self.ekg_pulse_bpm
 
+    def post_muscle(self, new_val):
+        self.muscle_smo_sig = 199. / 200. * self.muscle_smo_sig + 1. / 200. * (new_val)
+
+        if new_val > self.muscle_smo_sig * 1.2 or new_val < self.muscle_smo_sig * 0.8:
+            return True
+        return False
+
     def post_acc(self, raw_acc):
         x = PostProcessor._two_comp(raw_acc[0], raw_acc[1])
         y = PostProcessor._two_comp(raw_acc[2], raw_acc[3])
@@ -57,9 +65,10 @@ class PostProcessor:
         val = (high_byte << 8) | low_byte
         val >>= 4
 
-        if ( val & (1 << (12 - 1))) != 0:
+        if (val & (1 << (12 - 1))) != 0:
             val -= 1 << 12
         return val
+
 
 if __name__ == '__main__':
     os.nice(5)
@@ -79,18 +88,19 @@ if __name__ == '__main__':
     muscle = sensors.MuscleActivity(muscle_queue, 1).start()
 
     while True:
-        ekg_time, ekg_adc = ekg_queue.get()
-        bpm = post.post_ekg(ekg_time, -ekg_adc)
+        # ekg_time, ekg_adc = ekg_queue.get()
+        # print(str(ekg_time) + ";" + str(ekg_adc))
+        # bpm = post.post_ekg(ekg_time, -ekg_adc)
 
-        acc_raw = acc_queue.get()
-        x, y, z = post.post_acc(acc_raw)
+        # acc_raw = acc_queue.get()
+        # x, y, z = post.post_acc(acc_raw)
         # print(str(x) + ";" + str(y) + ";" + str(z))
 
         muscle_adc = muscle_queue.get()
-        print(muscle_adc)
+        is_seizure = post.post_muscle(muscle_adc)
+        print(str(muscle_adc) + ";" + str(is_seizure))
         """
-
         if time.time() - last_send > 90:
-            message = {"pulse": bpm}
+            message = {"pulse": bpm, "rawMuscle": muscle_adc, "isSeizure": is_seizure}
             JsonTalker.send('http://192.168.2.108:1337/measurements/', message)
         """
