@@ -50,6 +50,9 @@
 
                 <!-- Any section element inside of this container is displayed as a slide -->
                 <div class="slides">
+					<section>
+						<div id="chartContainer" style="height: 300px; width:100%;"> </div>
+					</section>
                     <section>
                         <h1>Life Guard</h1>
 						<h3>&#x2764; Health &amp; Mobility</h3>
@@ -59,10 +62,28 @@
 						<p>
 							<small>
                                 <img src="img/logo-university-of-bayreuth.png" class="vertical-center" />
-                                <span class="vertical-center">UniversitÃ¤t Bayreuth</span>
+                                <span class="vertical-center">Universität Bayreuth</span>
                             </small>
 						</p>
                     </section>
+					<section>
+						<h3>Challenge</h3>
+                        <blockquote>
+						    <p>
+                                Ubiquitous wireless data connections have increased the level of home automation tremendously.
+                                Together with connected vehicles as mobile environments, the number of possible use cases has risen accordingly.
+                            </p>
+                            <p>
+                                <small>
+                                    With sensors and actors distributed in a smart home, convenience factors such as automated parking and vehicle
+                                    preparation are emerging rapidly. Media clouds and network attached storage solutions can be extended to create
+                                    seamless transition between smart home and connected vehicles. With measurements from RFID sensors, light,
+                                    ultrasound, movement and proximity indicators, other values such as sonic data, CO2 values or humidity levels
+                                    can be cross-calculated and recombined.
+                                </small>
+                            </p>
+                        </blockquote>
+					</section>
 					<section>
 						<h3> The Idea behind Life Guard? </h3>
 					</section>
@@ -101,11 +122,11 @@
 						</div>
 					</section>
 					<section>
-						<h3> Der Fahrer verliert die Kontrolle Ã¼ber das Fahrzeug und gefÃ¤hrdet damit sich und andere Menschen </h3>
+						<h3> Der Fahrer verliert die Kontrolle über das Fahrzeug und gefährdet damit sich und andere Menschen </h3>
 					</section>
 					<section>
-					<p> Deshalb wollen wir mit Life Guard ein System schaffen, dass durch FrÃ¼herkennung von auÃŸerordentlichen gefÃ¤hrlichen UmstÃ¤nden
-					, den in der Situation fahruntÃ¼chtig gewordenen Fahrer zur Seite steht und unterstÃ¼tzt.
+					<p> Deshalb wollen wir mit Life Guard ein System schaffen, dass durch Früherkennung von außerordentlichen gefährlichen Umständen
+					, den in der Situation fahruntüchtig gewordenen Fahrer zur Seite steht und unterstützt.
 					</p>
 					</section>
 					<section>
@@ -113,14 +134,14 @@
 					<ul>
 						<li>Rechtzeitges Erkennen via Sensoren</li>
 						<li>Wirken gegen den Kontrollverlust</li>
-						<li>Im Ausblick auf das autonome Fahren: BefÃ¶rden des Kraftwagen mit Insasses sicher aus der Gefahrenzone</li>
+						<li>Im Ausblick auf das autonome Fahren: Beförden des Kraftwagen mit Insasses sicher aus der Gefahrenzone</li>
 					</ul>
 					</section>
 					<section> DUMMY PAGE
-						Unsere Sensoren erkennen die gefÃ¤hrliche Situation rechtzeitig</p>
-					Wir kÃ¶nnen so dem Kontrollverlust entgegenwirken
-					bzw. in zukÃ¼nftigem Ausblick auf das Autonome Fahren, den Kraftwagen mit Insassen sicher aus der Gefahrenzone befÃ¶rden und
-					abschlieÃŸend sogar Hilfe rufen.
+						Unsere Sensoren erkennen die gefährliche Situation rechtzeitig</p>
+					Wir können so dem Kontrollverlust entgegenwirken
+					bzw. in zukünftigem Ausblick auf das Autonome Fahren, den Kraftwagen mit Insassen sicher aus der Gefahrenzone beförden und
+					abschließend sogar Hilfe rufen.
 					</section>
 					<section>
 					<h1> Technologie </h1>
@@ -504,5 +525,7 @@
 
         <script src="js/jquery-2.2.2.min.js"></script>
         <script src="js/lifeguard.js"></script>
+		<script type="text/javascript" src="js/canvasjs/source/canvasjs.js"></script>
+		<script src="js/test.js"></script>
 	</body>
 </html>
