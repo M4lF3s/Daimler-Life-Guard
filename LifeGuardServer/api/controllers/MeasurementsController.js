@@ -45,6 +45,10 @@
       data = this.latestData();
       res.set('Access-Control-Allow-Origin', '*');
       return res.json(data);
+    },
+    warnings: function(req, res) {
+      res.set('Access-Control-Allow-Origin', '*');
+      return res.json(this.healthCondition);
     }
   };
 

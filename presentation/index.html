@@ -151,6 +151,7 @@
             <p></p>
           </section>
 
+          <!-- Herz apparat glump -->
           <section class="road-visible" data-background="black">
             <!-- Live demo -->
             <div class="cockpit-dashboard">
@@ -162,11 +163,32 @@
               <img class="dashmeter dash-component-right raw" src="img/revmeter.png"/>
               <img class="needle dash-component-right raw" src="img/needle.png"/>
             </div>
+
             <div style="margin-top: 20px;">
               <div class="col-6">
-                <div id="chartContainer" style="height: 300px; width:100%;"></div>
+                <div id="chartContainerPulse" style="height: 300px; width:100%;"></div>
               </div>
               <div class="col-6">
+                <div id="chartContainerPulseActivity" style="height: 300px; width:100%;"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Grampf -->
+          <section class="road-visible" data-background="black">
+            <!-- Live demo -->
+            <div class="cockpit-dashboard">
+              <img class="dashmeter dash-component-left raw" src="img/speedometer.png"/>
+              <img class="needle dash-component-left raw" src="img/needle.png"/>
+
+              <div class="warn-sign raw"></div>
+
+              <img class="dashmeter dash-component-right raw" src="img/revmeter.png"/>
+              <img class="needle dash-component-right raw" src="img/needle.png"/>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <div class="col-12">
                 <div id="chartContainerMuscle" style="height: 300px; width:100%;"></div>
               </div>
             </div>

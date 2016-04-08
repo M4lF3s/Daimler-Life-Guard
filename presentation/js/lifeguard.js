@@ -39,6 +39,10 @@ $(document).ready(function() {
       showRoad();
     } else if(lastVisible && !curVisible) {
       hideRoad();
+    } else if(lastVisible && curVisible) {
+      if(emergencyActive) {
+        rejoinMotorway();
+      }
     }
   });
 
@@ -131,9 +135,13 @@ function animStep(manual) {
       $('.needle.dash-component-left').removeClass('speed-130');
       $('.needle.dash-component-right').removeClass('speed-130').addClass('speed-0');
     } else {
-      otherCars.animate({
-        'margin-top': '-=266'
-      }, stepDuration, 'linear', animStep);
+      if(parseInt(otherCars.css('margin-top')) < -1500) {
+        otherCars.css('margin-top', '4000px');
+      } else {
+        otherCars.animate({
+          'margin-top': '-=266'
+        }, stepDuration, 'linear', animStep);
+      }
     }
   }
 }
@@ -189,6 +197,34 @@ function showWarning(type) {
   if(type != null) {
     warnSign.addClass(type);
   }
+}
+
+function rejoinMotorway() {
+  runCar();
+  enableHazardSystem(false);
+  setTimeout(function () {
+    actualRejoinMotorway();
+  }, 4000);
+}
+
+function actualRejoinMotorway() {
+  var otherCars = $('.car.other-car');
+  for(var i = 0; i < otherCars.length; ++i) {
+    if($(otherCars[i]).offset().top < 350) {
+      setTimeout(actualRejoinMotorway, 200);
+      return;
+    }
+  }
+
+  changeLane(-1);
+
+  setTimeout(function() {
+    changeLane(-1);
+  }, 1500);
+
+  setTimeout(function() {
+    emergencyActive = false;
+  }, 2500);
 }
 
 function emergencyPullOver() {

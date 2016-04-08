@@ -1,4 +1,4 @@
-module.export =
+module.exports =
   analyze: (isSeizure) ->
     if isSeizure
       1

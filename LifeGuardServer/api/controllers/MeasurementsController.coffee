@@ -43,3 +43,7 @@ module.exports =
     data = this.latestData()
     res.set('Access-Control-Allow-Origin', '*');
     res.json(data)
+
+  warnings: (req, res) ->
+    res.set('Access-Control-Allow-Origin', '*');
+    res.json(this.healthCondition)
