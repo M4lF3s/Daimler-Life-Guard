@@ -36,9 +36,12 @@
       } else {
         return {};
       }
+    },
+    latest: function(req, res) {
+      var data;
+      data = this.sensorData[0];
+      return res.json(data);
     }
   };
 
 }).call(this);
-
-//# sourceMappingURL=MeasurementsController.js.map

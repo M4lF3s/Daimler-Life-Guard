@@ -33,3 +33,7 @@ module.exports =
       this.sensorData[0]
     else
       {}
+
+  latest: (req, res) ->
+    data = this.sensorData[0]
+    res.json(data)
