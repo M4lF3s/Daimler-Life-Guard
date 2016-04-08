@@ -30,7 +30,8 @@
 	//Default values for all Chart Elements that can be set by the user. CanvasJSObject.setOptions looks into this while setting the default/user-defined values.
 	var defaultOptions = {
 		Chart: {
-			
+			width: 500,
+			height: 400,
 			zoomEnabled: false,
 			zoomType: "x",
 			backgroundColor: "black",

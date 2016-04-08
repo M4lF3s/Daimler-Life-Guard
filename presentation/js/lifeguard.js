@@ -1,10 +1,12 @@
+var easeInQuad = function (x, t, b, c, d) {
+  return c*(t/=d)*t + b;
+};
+
 $.extend($.easing, {
     easeOutQuad: function (x, t, b, c, d) {
         return -c *(t/=d)*(t-2) + b;
     },
-    easeInQuad: function (x, t, b, c, d) {
-        return c*(t/=d)*t + b;
-    }
+    easeInQuad: easeInQuad
 });
 
 var car = {
@@ -21,20 +23,25 @@ var car = {
 };
 
 $(document).ready(function() {
-    $(window).resize(adjustSlidesSize);
-    adjustSlidesSize();
-    car.element = $('.car');
-    car.road = $('.road');
-    car.lanes = car.road.find('.lane');
-    
-    runCar();
-    roadCam(0.75, 100);
-});
+  car.element = $('.car.our-car');
+  car.road = $('.road');
+  car.lanes = car.road.find('.lane');
 
-function adjustSlidesSize() {
-  var slidesWidth = $(window).width() - $('.motorway').width();
-  $('.slides').width(slidesWidth)
-}
+  // runCar();
+  // roadCam(0.75, 100);
+  roadCam(0.4, 50);
+
+  Reveal.addEventListener( 'slidechanged', function( event ) {
+    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+    var curVisible = $(event.currentSlide).hasClass('road-visible');
+    var lastVisible = $(event.previousSlide).hasClass('road-visible');
+    if(!lastVisible && curVisible) {
+      showRoad();
+    } else if(lastVisible && !curVisible) {
+      hideRoad();
+    }
+  });
+});
 
 function roadCam(scale, translate) {
   if(translate == null) {
@@ -66,31 +73,39 @@ function animStep(manual) {
   }
 
   if(car.command) {
-      // Car should move
-      if(car.lastState) {
-          // Car was already moving -> just move on
-          car.roadPosition += stepSize;
-          car.lanes.animate({
-              'background-position-y': car.roadPosition + '%'
-          }, stepDuration, 'linear', animStep);
-      } else {
-          // Car was not moving -> Accelerate
-          car.roadPosition += 50;
-          car.lanes.animate({
-              'background-position-y': car.roadPosition + '%'
-          }, 4000, 'easeInQuad', animStep);
-          car.lastState = true;
-      }
+    // Car should move
+    if(car.lastState) {
+      // Car was already moving -> just move on
+      car.roadPosition += stepSize;
+      car.lanes.animate({
+          'background-position-y': car.roadPosition + '%'
+      }, stepDuration, 'linear', animStep);
+    } else {
+      // Car was not moving -> Accelerate
+      car.roadPosition += 50;
+      car.lanes.animate({
+          'background-position-y': car.roadPosition + '%'
+      }, {
+        duration: 4000,
+        easing: 'easeInQuad',
+        complete: animStep
+      });
+      $('.needle.dash-component-left').addClass('speed-130');
+      $('.needle.dash-component-right').removeClass('speed-0').addClass('speed-130');
+      car.lastState = true;
+    }
   } else {
-      // Car should stand still
-      if(car.lastState) {
-          // Car was moving -> stop it
-          car.lastState = false;
-          car.roadPosition += 30;
-          car.lanes.animate({
-              'background-position-y': car.roadPosition + '%'
-          }, 3000, 'easeOutQuad', animStep);
-      }
+    // Car should stand still
+    if(car.lastState) {
+      // Car was moving -> stop it
+      car.lastState = false;
+      car.roadPosition += 30;
+      car.lanes.animate({
+          'background-position-y': car.roadPosition + '%'
+      }, 4000, 'easeOutQuad', animStep);
+      $('.needle.dash-component-left').removeClass('speed-130');
+      $('.needle.dash-component-right').removeClass('speed-130').addClass('speed-0');
+    }
   }
 }
 function enableHazardSystem(enable){
@@ -100,12 +115,12 @@ function enableHazardSystem(enable){
 function changeCarImageBlink(){
 	if(car.hazardFlasherEnabled == true){
 		if(car.hazardFlasherOn == false){
-			car.element.attr("src","img/e-class_warnblinker.png")
+			car.element.attr("src","img/e-class_warnblinker.png");
 			car.hazardFlasherOn = true;
 			setTimeout(changeCarImageBlink,500)	
 		}
 		else{
-			car.element.attr("src","img/e-class.png")
+			car.element.attr("src","img/e-class.png");
 			car.hazardFlasherOn = false;
 			setTimeout(changeCarImageBlink,500)
 		}
@@ -117,7 +132,7 @@ function changeLane(dir) {
   var ROTATION = 6;
   var TIMEOUT = 700;
 
-  var car = $('.car');
+  var car = $('.car.our-car');
 
   car.css('transform', 'rotate(' + dir * ROTATION + 'deg)');
 
@@ -130,11 +145,19 @@ function changeLane(dir) {
 }
 
 function showRoad() {
-  $('.motorway').animate({width: 300}, 500);
-  $('.slides').animate({width: $(window).width() - 300}, 500);
+  $('.motorway').addClass('visible');
+  $('.reveal-container').addClass('shifted');
 }
 
 function hideRoad() {
-  $('.motorway').animate({width: 0}, 500);
-  $('.slides').animate({width: $(window).width()}, 500);
+  $('.motorway').removeClass('visible');
+  $('.reveal-container').removeClass('shifted');
+}
+
+function showWarning(type) {
+  var warnSign = $('.warn-sign');
+  warnSign.removeClass('alert hazard');
+  if(type != null) {
+    warnSign.addClass(type);
+  }
 }

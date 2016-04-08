@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "AnalysisService.js",
+  "sourceRoot": "",
+  "sources": [
+    "AnalysisService.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;EAAA,MAAM,CAAC,OAAP,GACE;IAAA,OAAA,EAAS,SAAC,YAAD;aACP;IADO,CAAT;;AADF"
+}

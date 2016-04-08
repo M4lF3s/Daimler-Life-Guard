@@ -309,6 +309,11 @@ body {
   text-align: center;
 }
 
+.reveal img.raw {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .tile, .reveal div.tile {
   margin-bottom: 20px;
   padding: 30px;
@@ -327,11 +332,18 @@ body {
  *********************************************/
  
 .motorway {
-  float: left;
-  width: 0;
+  position: absolute;
+  z-index: 1;
+  width: 300px;
   height: 100%;
-  position: relative;
   overflow: hidden;
+
+  transform: translate(-300px, 0);
+  transition: transform 0.5s;
+}
+
+.motorway.visible {
+  transform: translate(0,0);
 }
 
 .motorway .road {
@@ -359,17 +371,127 @@ body {
 }
 
 .motorway .car {
-    position: absolute;
-    top: 200px;
-    left: 225px;
-    width: 150px;
-    
-    transition: left 1s ease-in-out, transform 0.3s ease;
+  position: absolute;
+  width: 150px;
 }
 
-.slides {
+.motorway .car.our-car {
+  top: 600px;
+  left: 225px;
+
+  transition: left 1s ease-in-out, transform 0.3s ease;
+}
+
+.motorway .car.other-car {
+  left: 425px;
+
+  animation-name: other-car-driving;
+  animation-duration: 15s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  transition: animation-duration 1s;
+}
+
+.reveal-container {
+  width: 100%;
   height: 100%;
-  float: left;
+
+  transition: transform 0.5s;
+}
+
+.reveal-container.shifted {
+  transform: translate(150px, 0);
+}
+
+/*********************************************
+ * COCKPIT
+ *********************************************/
+
+.reveal .cockpit-dashboard, .cockpit-dashboard {
+  display: block;
+  position: relative;
+  width: 720px;
+  height: 285px;
+  margin-right: auto;
+  margin-left: auto;
+
+  background-image: url('../../img/cockpit-background.png');
+  background-size: 100% 100%;
+}
+
+.cockpit-dashboard .warn-sign {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+
+  width: 100px;
+  height: 90px;
+  margin-left: -50px;
+  margin-top: -80px;
+
+  background-size: 100% 100%;
+
+  animation-name: warning-flash;
+  animation-duration: 0.8s;
+  animation-timing-function: ease;
+  animation-iteration-count: infinite;
+}
+
+.cockpit-dashboard .warn-sign.alert {
+  background-image: url('../../img/alert.png');
+}
+
+.cockpit-dashboard .warn-sign.hazard {
+  background-image: url('../../img/hazard.png');
+}
+
+.dashmeter {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+}
+
+.dash-component-left {
+  left: 0;
+}
+
+.dash-component-right {
+  right: 0;
+}
+
+.needle {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  transform-origin: center;
+}
+
+.needle.dash-component-left {
+  transition: transform 4s cubic-bezier(.4,.07,.52,.99);
+  transform: rotate(-131deg);
+}
+
+.needle.dash-component-left.speed-130 {
+  transform: rotate(0deg);
+}
+
+.needle.dash-component-right {
+  transform: rotate(-94deg);
+}
+
+.needle.dash-component-right.speed-0 {
+  animation-name: downshift;
+  animation-duration: 4s;
+  animation-timing-function: ease-out;
+  transform: rotate(-94deg);
+}
+
+.needle.dash-component-right.speed-130 {
+  animation-name: upshift;
+  animation-duration: 4s;
+  animation-timing-function: linear;
+  transform: rotate(-60deg);
 }
 
 /*********************************************
@@ -379,4 +501,38 @@ body {
 @keyframes backgroundAnimate {
     from { background-position: 0 0; }
     to { background-position: 0 100%; }
+}
+
+@keyframes downshift {
+  from { transform: rotate(-60deg); }
+  20% { transform: rotate(-94deg); }
+  25% { transform: rotate(-50deg); }
+  45% { transform: rotate(-94deg); }
+  50% { transform: rotate(-50deg); }
+  70% { transform: rotate(-94deg); }
+  75% { transform: rotate(-50deg); }
+  to { transform: rotate(-94deg); }
+}
+
+@keyframes upshift {
+  from { transform: rotate(-94deg); }
+  15% { transform: rotate(-50deg); }
+  19% { transform: rotate(-94deg); }
+  38% { transform: rotate(-50deg); }
+  42% { transform: rotate(-94deg); }
+  66% { transform: rotate(-50deg); }
+  70% { transform: rotate(-94deg); }
+  to { transform: rotate(-60deg); }
+}
+
+@keyframes warning-flash {
+  0% { opacity: 0; }
+  45% { opacity: 1; }
+  55% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes other-car-driving {
+  from { top: -10%; }
+  to { top: 100%; }
 }
