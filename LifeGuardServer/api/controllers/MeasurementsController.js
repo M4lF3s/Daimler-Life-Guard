@@ -9,6 +9,7 @@
     targetFps: 10,
     maxRecordJoinTime: 100,
     sensorData: [],
+    healthCondition: {},
     post: function(req, res) {
       var data, latest, timestamp;
       data = req.body;
@@ -28,6 +29,8 @@
           latest = extend(latest, data);
         }
       }
+      this.healthCondition = AnalysisService.analyze(this.sensorData);
+      console.log("Data count: " + this.sensorData.length);
       return res.ok();
     },
     latestData: function() {

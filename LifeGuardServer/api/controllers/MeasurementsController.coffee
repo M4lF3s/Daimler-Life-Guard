@@ -4,7 +4,8 @@ module.exports =
   maxData: 1000
   targetFps: 10,
   maxRecordJoinTime: 100,
-  sensorData: []
+  sensorData: [],
+  healthCondition: {},
 
   post: (req, res) ->
     data = req.body
@@ -25,7 +26,11 @@ module.exports =
         # Append to existing record
         latest = extend(latest, data)
 
-    # Successfully received new data
+    # Successfully received new data -> Analyze
+    this.healthCondition = AnalysisService.analyze this.sensorData
+    console.log "Data count: #{this.sensorData.length}"
+
+    # Finish request
     res.ok()
 
   latestData: () ->
