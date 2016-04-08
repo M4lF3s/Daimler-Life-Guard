@@ -8,4 +8,3 @@ module.exports =
       Math.min((pulse - 180) / 10, 1)
     else
       0
-

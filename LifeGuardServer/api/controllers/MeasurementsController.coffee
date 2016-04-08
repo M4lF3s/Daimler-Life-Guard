@@ -40,5 +40,6 @@ module.exports =
       {}
 
   latest: (req, res) ->
-    data = this.sensorData[0]
+    data = this.latestData()
+    res.set('Access-Control-Allow-Origin', '*');
     res.json(data)

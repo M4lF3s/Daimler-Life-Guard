@@ -42,7 +42,8 @@
     },
     latest: function(req, res) {
       var data;
-      data = this.sensorData[0];
+      data = this.latestData();
+      res.set('Access-Control-Allow-Origin', '*');
       return res.json(data);
     }
   };
