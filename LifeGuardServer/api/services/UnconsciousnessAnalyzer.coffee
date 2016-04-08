@@ -17,8 +17,8 @@ module.exports =
     if sensorAnalyzers.headPose == 1
       warning = true
       if this.warntimeHeadPose == null
-        this.warntimeHeadPose = date.getTime
-      if (date.getTime() - this.warntimeHeadPose()) >= 5000
+        this.warntimeHeadPose = date
+      if (date - this.warntimeHeadPose) >= 5000
         critical = true
 
     unconsciousnessWarning: warning

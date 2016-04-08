@@ -8,7 +8,7 @@ module.exports =
     pulse: (pulse) -> PulseAnalyzer.analyze(pulse)
     eyesOpen: (eyesOpen) -> EyesOpenAnalyzer.analyze(eyesOpen)
     headPose: (pose) -> HeadPoseAnalyzer.analyze(pose)
-    muscleActivity: (muscle) -> MuscleAnalyzer.analyze(muscle)
+    #muscleActivity: (muscle) -> MuscleAnalyzer.analyze(muscle)
 
   # Analyzes the preprocessed sensor values with respect to a specific disease
   # Input: Map containing all preprocessed sensor values. Format: "name" -> severity [0-1]
@@ -39,5 +39,4 @@ module.exports =
       result = extend(result, analyzer(analyzedSensors));
 
     console.log(result)
-
     result
