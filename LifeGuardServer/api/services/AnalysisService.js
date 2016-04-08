@@ -9,15 +9,26 @@
       pulse: function(pulse) {
         return PulseAnalyzer.analyze(pulse);
       },
-      eyesOpen: function() {},
-      headPose: function() {},
-      muscleActivity: function() {}
+      eyesOpen: function(eyesOpen) {
+        return EyesOpenAnalyzer.analyze(eyesOpen);
+      },
+      headPose: function(pose) {
+        return HeadPoseAnalyzer.analyze(pose);
+      },
+      muscleActivity: function(muscle) {
+        return MuscleAnalyzer.analyze(muscle);
+      }
     },
     symptomAnalyzers: {
-      heartAttack: function() {},
-      unconsciousness: function() {},
-      sleeping: function() {},
-      seizure: function() {}
+      heartattack: function(sensorAnalyzers) {
+        return HeartAttackAnalyzer.analyze(sensorAnalyzers);
+      },
+      unconsciousness: function(sensorAnalyzers) {
+        return UnconsciousnessAnalyzer.analyze(sensorAnalyzers);
+      },
+      sleeping: function(sensorAnalyzers) {
+        return SleepingAnalyzer.analyze(sensorAnalyzers);
+      }
     },
     analyze: function(latestMeasurement) {
       var analyzedSensors, analyzer, property, ref, ref1, result;
@@ -35,6 +46,7 @@
         analyzer = ref1[property];
         result = extend(result, analyzer(analyzedSensors));
       }
+      console.log(result);
       return result;
     }
   };
