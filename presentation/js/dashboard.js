@@ -6,7 +6,7 @@ $(document).ready(function () {
 });
 
 function pollValues() {
-  $.get('', function(data) {
+  $.get('127.0.0.1:1337/measurements/latest', function(data) {
     
   });
 }
