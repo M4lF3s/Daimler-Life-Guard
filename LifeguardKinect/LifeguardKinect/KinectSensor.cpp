@@ -436,7 +436,7 @@ HRESULT KinectSensor::GetClosestHint(FT_VECTOR3D* pHint3D)
                     fabs(m_HeadPoint[i].z - pHint3D[1].z);
                 if (smallestDistance == 0 || d < smallestDistance)
                 {
-                    smallestDistance = d;
+                    smallestDistance = d; 
                     selectedSkeleton = i;
                 }
             }
