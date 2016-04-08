@@ -1,6 +1,6 @@
 module.exports =
   analyze: (pose) ->
-    if pose == 0
+    if pose == undefined
       1
     else if pose.rotation.x > 50
       1

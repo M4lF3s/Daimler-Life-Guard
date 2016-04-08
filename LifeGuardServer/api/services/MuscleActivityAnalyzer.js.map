@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "MuscleActivityAnalyzer.js",
+  "sourceRoot": "",
+  "sources": [
+    "MuscleActivityAnalyzer.coffee"
+  ],
+  "names": [],
+  "mappings": ";AAAA;EAAA,MAAM,CAAC,QAAD,CAAN,GACE;IAAA,OAAA,EAAS,SAAC,MAAD;aAEP;IAFO,CAAT;;AADF"
+}
