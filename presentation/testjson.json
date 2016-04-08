@@ -1,0 +1,7 @@
+{"measurements":[
+    {"pulse":55},
+    {"eyesOpen":200},
+    {"headPose":98},
+	{"muscleActivity": 12}
+	{"timestamp": 5000}
+]}
