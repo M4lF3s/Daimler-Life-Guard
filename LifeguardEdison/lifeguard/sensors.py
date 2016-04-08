@@ -24,7 +24,7 @@ class MuscleActivity(multiprocessing.Process):
         super(MuscleActivity, self).__init__()
         self.queue = queue
         self.adc = mraa.Aio(pin)
-        self.adc.setBit()
+        self.adc.setBit(12)
         os.nice(-20)
 
     def run(self):
@@ -60,12 +60,12 @@ class Acc(multiprocessing.Process):
         if self.i2c.readReg(0x0D) != 0x2A:
             raise RuntimeError("Acc not connected.")
 
-        self.i2c.writeReg(0x0E, 3)  # set scale
+        self.i2c.writeReg(0x0E, 0)  # set scale
         self.i2c.writeReg(0x2A, 1)  # set active
         os.nice(-20)
 
     def run(self):
         while True:
-            acc_raw = self.i2c.readBytesReg(0x01, 6)
-            self.queue.put(acc_raw)
+            z = self.i2c.readBytesReg(0x05, 2)
+            self.queue.put(z)
             time.sleep(0.02)

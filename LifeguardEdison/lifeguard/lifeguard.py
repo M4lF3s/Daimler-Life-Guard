@@ -16,8 +16,8 @@ class JsonTalker:
         try:
             r = urllib2.Request(ip, json.dumps(message), {"Content-Type": "application/json"})
             urllib2.urlopen(r)
-        except urllib2.URLError:
-            print("Connection timed out but yolo")
+        except urllib2.URLError as e:
+            print(e.reason())
 
 
 class PostProcessor:
@@ -32,6 +32,10 @@ class PostProcessor:
 
         # muscle variables
         self.muscle_smo_sig = None
+
+        # acc variables
+        self.acc_last_z = 0
+        self.acc_smo_sig = 0
 
     def post_ekg(self, t, new_val):
         self.ekg_smo_sig += 1. / 15. * (new_val - self.ekg_last_val)
@@ -57,11 +61,15 @@ class PostProcessor:
             return True
         return False
 
-    def post_acc(self, raw_acc):
-        x = PostProcessor._two_comp(raw_acc[0], raw_acc[1])
-        y = PostProcessor._two_comp(raw_acc[2], raw_acc[3])
-        z = PostProcessor._two_comp(raw_acc[4], raw_acc[5])
-        return x, y, z
+    def post_acc(self, z_raw):
+        z = PostProcessor._two_comp(z_raw[0], z_raw[1])
+
+        self.acc_smo_sig = 49. / 50. * self.acc_smo_sig + 1. / 50. * abs(z - self.acc_last_z)
+        self.acc_last_z = z
+
+        if self.acc_smo_sig > 18:
+            return True
+        return False
 
     @staticmethod
     def _two_comp(high_byte, low_byte):
@@ -82,15 +90,19 @@ if __name__ == '__main__':
     ekg_queue = multiprocessing.Queue(100)
     ekg = sensors.EKG(ekg_queue, 0).start()
     bpm = None
+    ekg_adcs = []
+    last_ekg_time = 0
 
     # setup Acc
-    # acc_queue = multiprocessing.Queue(100)
-    # acc = sensors.Acc(acc_queue).start()
+    acc_queue = multiprocessing.Queue(100)
+    acc = sensors.Acc(acc_queue).start()
+    is_shaking = None
 
     # setup Muscle
     muscle_queue = multiprocessing.Queue(100)
     muscle = sensors.MuscleActivity(muscle_queue, 1).start()
     muscle_adc = None
+    muscle_adcs = []
     is_seizure = None
 
     # setup contact sensor
@@ -100,25 +112,32 @@ if __name__ == '__main__':
 
     while True:
         ekg_time, ekg_adc = ekg_queue.get()
+        last_ekg_time = ekg_time
+        ekg_adcs.append(ekg_adc)
         bpm = post.post_ekg(ekg_time, -ekg_adc)
 
-        # acc_raw = acc_queue.get()
-        # x, y, z = post.post_acc(acc_raw)
-        # print(str(x) + ";" + str(y) + ";" + str(z))
+        try:
+            z_raw = acc_queue.get_nowait()
+            is_shaking = post.post_acc(z_raw)
+        except Queue.Empty:
+            pass
 
         try:
             muscle_adc = muscle_queue.get_nowait()
+            muscle_adcs.append(muscle_adc)
             is_seizure = post.post_muscle(muscle_adc)
         except Queue.Empty:
             pass
+
         try:
             is_contacted = contact_queue.get_nowait()
         except Queue.Empty:
             pass
 
         if time.time() - last_send > 0.1:
-            message = {"muscleActivity": muscle_adc, "isSeizure": is_seizure, "pulse": bpm,
-                       "isWheelTouched": is_contacted}
-
+            message = {"muscleActivity": muscle_adcs, "isSeizure": is_seizure, "pulse": bpm,
+                       "pulseActivity": ekg_adcs, "isWheelTouched": is_contacted, "isShaking": is_shaking}
             JsonTalker.send('http://192.168.2.108:1337/measurements/', message)
             last_send = time.time()
+            muscle_adcs = []
+            ekg_adcs = []
