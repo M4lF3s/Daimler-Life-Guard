@@ -31,7 +31,7 @@ class PostProcessor:
         self.ekg_pulse_bpm = -1
 
         # muscle variables
-        self.muscle_smo_sig = 0
+        self.muscle_smo_sig = None
 
     def post_ekg(self, t, new_val):
         self.ekg_smo_sig += 1. / 15. * (new_val - self.ekg_last_val)
@@ -48,6 +48,9 @@ class PostProcessor:
         return self.ekg_pulse_bpm
 
     def post_muscle(self, new_val):
+        if self.muscle_smo_sig is None:
+            self.muscle_smo_sig = new_val
+            return False
         self.muscle_smo_sig = 199. / 200. * self.muscle_smo_sig + 1. / 200. * (new_val)
 
         if new_val > self.muscle_smo_sig * 1.2 or new_val < self.muscle_smo_sig * 0.8:
@@ -76,12 +79,12 @@ if __name__ == '__main__':
     last_send = time.time()
 
     # setup EKG
-    ekg_queue = multiprocessing.Queue(100)
-    ekg = sensors.EKG(ekg_queue, 0).start()
+    # ekg_queue = multiprocessing.Queue(100)
+    # ekg = sensors.EKG(ekg_queue, 0).start()
 
     # setup Acc
-    acc_queue = multiprocessing.Queue(100)
-    acc = sensors.Acc(acc_queue).start()
+    # acc_queue = multiprocessing.Queue(100)
+    # acc = sensors.Acc(acc_queue).start()
 
     # setup Muscle
     muscle_queue = multiprocessing.Queue(100)
@@ -98,9 +101,7 @@ if __name__ == '__main__':
 
         muscle_adc = muscle_queue.get()
         is_seizure = post.post_muscle(muscle_adc)
-        print(str(muscle_adc) + ";" + str(is_seizure))
-        """
-        if time.time() - last_send > 90:
-            message = {"pulse": bpm, "rawMuscle": muscle_adc, "isSeizure": is_seizure}
+
+        if time.time() - last_send > 0.1:
+            message = {"muscleActivity": muscle_adc, "isSeizure": is_seizure}
             JsonTalker.send('http://192.168.2.108:1337/measurements/', message)
-        """
