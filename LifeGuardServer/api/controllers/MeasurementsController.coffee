@@ -1,23 +1,35 @@
+extend = require('util')._extend
 
 module.exports =
   maxData: 1000
+  targetFps: 10,
+  maxRecordJoinTime: 100,
   sensorData: []
 
   post: (req, res) ->
     data = req.body
     timestamp = Date.now()
     if this.sensorData.length == 0
-      this.sensorData.push(data)
+      # No data yet at all -> new record
+      data.timestamp = timestamp
+      this.sensorData.push data
+    else
+      latest = this.latestData()
+      if timestamp - latest.timestamp > this.maxRecordJoinTime
+        # Create a new record
+        data.timestamp = timestamp
+        this.sensorData = [req.body].concat this.sensorData
+        if this.sensorData.length > this.maxData
+          this.sensorData.pop()
+      else
+        # Append to existing record
+        latest = extend(latest, data)
 
-    this.sensorData = [req.body].concat this.sensorData
-    if this.sensorData.length > this.maxData
-      this.sensorData.pop()
-
-    console.log this.sensorData.length
+    # Successfully received new data
     res.ok()
 
-
   latestData: () ->
-    sensorData[0]
-
-
+    if this.sensorData.length > 0
+      this.sensorData[0]
+    else
+      {}
