@@ -1,6 +1,5 @@
 module.exports =
   warntimePulse: null
-  warntimeEyesOpen: null
   warntimeHeadPose: null
 
   analyze: (sensorAnalyzers) ->
@@ -13,13 +12,6 @@ module.exports =
       if this.warntimePulse == null
         this.warntimePulse = date
       if (date - this.warntimePulse) >= 5000
-        critical = true
-
-    if sensorAnalyzers.eyesOpen == 1
-      warning = true
-      if this.warntimeEyesOpen == null
-        this.warntimeEyesOpen = date
-      if (date - this.warntimeEyesOpen) >= 5000
         critical = true
 
     if sensorAnalyzers.headPose == 1
