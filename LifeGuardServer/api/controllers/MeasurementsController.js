@@ -29,7 +29,7 @@
           latest = extend(latest, data);
         }
       }
-      this.healthCondition = AnalysisService.analyze(this.sensorData);
+      this.healthCondition = AnalysisService.analyze(this.latestData());
       console.log("Data count: " + this.sensorData.length);
       return res.ok();
     },
@@ -48,3 +48,5 @@
   };
 
 }).call(this);
+
+//# sourceMappingURL=MeasurementsController.js.map
