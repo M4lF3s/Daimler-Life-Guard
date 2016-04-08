@@ -1,17 +1,26 @@
 module.exports =
-  warntimeSeizure: null
+  warntimeMuscle: null
+  warntimeAcceleration: null
 
   analyze: (sensorAnalyzers) ->
     warning = false
     critical = false
     date = Date.now()
 
-    if sensorAnalyzers.isSeizure
+    if sensorAnalyzers.muscleActivity == 1
       warning = true
-      if this.warntime == null
-        this.warntimeSeizure = date
-      if (date - this.warntimeSeizure) >= 2500
+      if this.warntimeMuscle == null
+        this.warntimeMuscle = date
+      if (date - this.warntimeMuscle) >= 2500
         critical = true
+
+    if sensorAnalyzers.acceleration == 1
+      warning = true
+      if this.warntimeAcceleration == null
+        this.warntimeAcceleration = date
+      if (date - this.warntimeAcceleration) >= 2500
+        critical = true
+
 
     seizureWarning: warning
     seizureCritical: critical

@@ -9,6 +9,7 @@ module.exports =
     eyesOpen: (eyesOpen) -> EyesOpenAnalyzer.analyze(eyesOpen)
     headPose: (pose) -> HeadPoseAnalyzer.analyze(pose)
     muscleActivity: (isSeizure) -> MuscleActivityAnalyzer.analyze(isSeizure)
+    acceleration: (isAccelerating) -> AccelerationAnalyzer.analyze(isAccelerating)
 
   # Analyzes the preprocessed sensor values with respect to a specific disease
   # Input: Map containing all preprocessed sensor values. Format: "name" -> severity [0-1]
