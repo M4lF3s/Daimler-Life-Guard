@@ -14,9 +14,6 @@
       },
       headPose: function(pose) {
         return HeadPoseAnalyzer.analyze(pose);
-      },
-      muscleActivity: function(muscle) {
-        return MuscleAnalyzer.analyze(muscle);
       }
     },
     symptomAnalyzers: {
