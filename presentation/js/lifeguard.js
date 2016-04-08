@@ -27,7 +27,7 @@ $(document).ready(function() {
   car.road = $('.road');
   car.lanes = car.road.find('.lane');
 
-  // runCar();
+  runCar();
   // roadCam(0.75, 100);
   roadCam(0.4, 50);
 
@@ -66,12 +66,15 @@ function animStep(manual) {
   var stepSize = 25;
 
   if(manual == null) {
+    if(car.command || car.lastState) {
       ++car.animateCalls;
-      if(car.animateCalls % car.lanes.length != 0) {
-          return;
+      if (car.animateCalls % car.lanes.length != 0) {
+        return;
       }
+    }
   }
 
+  var otherCars = $('.all-other-cars');
   if(car.command) {
     // Car should move
     if(car.lastState) {
@@ -80,6 +83,12 @@ function animStep(manual) {
       car.lanes.animate({
           'background-position-y': car.roadPosition + '%'
       }, stepDuration, 'linear', animStep);
+
+      if(parseInt(otherCars.css('margin-top')) > 4000) {
+        otherCars.css('margin-top', '-600px');
+      } else {
+        otherCars.animate({'margin-top': '+=266'}, stepDuration, 'linear');
+      }
     } else {
       // Car was not moving -> Accelerate
       car.roadPosition += 50;
@@ -90,6 +99,11 @@ function animStep(manual) {
         easing: 'easeInQuad',
         complete: animStep
       });
+      otherCars.animate({'margin-top': '-=200'}, 2000, 'swing');
+      setTimeout(function() {
+        otherCars.animate({'margin-top': '+=400'}, 2000, 'swing');
+      }, 2000);
+
       $('.needle.dash-component-left').addClass('speed-130');
       $('.needle.dash-component-right').removeClass('speed-0').addClass('speed-130');
       car.lastState = true;
@@ -103,8 +117,17 @@ function animStep(manual) {
       car.lanes.animate({
           'background-position-y': car.roadPosition + '%'
       }, 4000, 'easeOutQuad', animStep);
+      otherCars.animate({'margin-top': '+=200'}, 2000, 'swing');
+      setTimeout(function() {
+        otherCars.animate({'margin-top': '-=400'}, 2000, 'swing');
+      }, 2000);
+
       $('.needle.dash-component-left').removeClass('speed-130');
       $('.needle.dash-component-right').removeClass('speed-130').addClass('speed-0');
+    } else {
+      otherCars.animate({
+        'margin-top': '-=266'
+      }, stepDuration, 'linear', animStep);
     }
   }
 }
@@ -160,4 +183,28 @@ function showWarning(type) {
   if(type != null) {
     warnSign.addClass(type);
   }
+}
+
+function emergencyPullOver() {
+  enableHazardSystem(true);
+  setTimeout(actualPullOver, 500);
+}
+
+function actualPullOver() {
+  var otherCars = $('.car.other-car');
+  for(var i = 0; i < otherCars.length; ++i) {
+    if($(otherCars[i]).offset().top < 350) {
+      setTimeout(actualPullOver, 200);
+      return;
+    }
+  }
+  changeLane(1);
+
+  setTimeout(function() {
+    changeLane(1);
+  }, 1500);
+
+  setTimeout(function() {
+    stopCar();
+  }, 3500);
 }

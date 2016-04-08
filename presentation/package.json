@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "bootstrap": "^3.3.6",
-    "canvasjs": "^1.8.1",
     "express": "~4.13.3",
     "grunt-cli": "^0.1.13",
     "jquery": "^2.2.3",
