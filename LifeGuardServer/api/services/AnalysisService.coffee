@@ -29,7 +29,7 @@ module.exports =
 
     # Step 1: Analyze the latest value of each sensor
     for property, analyzer of this.sensorAnalyzers
-      analyzedSensors[property] = analyzer(latestMeasurement[property]) if property of latestMeasurement
+      analyzedSensors[property] = analyzer(latestMeasurement[property])
     console.log latestMeasurement
     console.log(analyzedSensors)
 

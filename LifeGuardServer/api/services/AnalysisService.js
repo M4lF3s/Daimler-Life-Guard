@@ -26,9 +26,7 @@
       ref = this.sensorAnalyzers;
       for (property in ref) {
         analyzer = ref[property];
-        if (property in latestMeasurement) {
-          analyzedSensors[property] = analyzer(latestMeasurement[property]);
-        }
+        analyzedSensors[property] = analyzer(latestMeasurement[property]);
       }
       console.log(latestMeasurement);
       console.log(analyzedSensors);

@@ -2,7 +2,9 @@
 (function() {
   module.exports = {
     analyze: function(pulse) {
-      if (pulse < 40) {
+      if (pulse === void 0) {
+        return 0;
+      } else if (pulse < 40) {
         return 1 - (Math.max(pulse - 20, 0) / 20);
       } else if (pulse >= 180) {
         return Math.min((pulse - 180) / 10, 1);
