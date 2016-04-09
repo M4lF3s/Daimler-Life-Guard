@@ -362,13 +362,13 @@ BOOL LifeguardKinect::PaintWindow(HDC hdc, HWND hWnd)
 
 	WCHAR buffer[256];
 
-	FLOAT eyesOpen = m_FTHelper.GetEyesOpen();
+	/*FLOAT eyesOpen = m_FTHelper.GetEyesOpen();
 	wsprintf(buffer, L"Eyes Open: %d", int(eyesOpen * 100));
 	rect.top = 20;
 	rect.bottom = 40;
 	rect.left = 10;
 	rect.right = 600;
-	DrawText(hdc, buffer, -1, &rect, 0);
+	DrawText(hdc, buffer, -1, &rect, 0);*/
 
 	return ret;
 }
