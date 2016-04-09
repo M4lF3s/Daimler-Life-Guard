@@ -78,17 +78,20 @@ function updateChart() {
       var relevantData = data[criticalFilter];
       if(relevantData != null && relevantData.critical) {
         PANIC111();
+        $('.warn-text').text(criticalFilter == 'unconsciousness' ? 'unconscious' : criticalFilter);
       } else if(relevantData != null && relevantData.warning) {
         showWarning('alert');
+        $('.warn-text').text(criticalFilter == 'unconsciousness' ? 'unconscious' : criticalFilter);
       } else {
         showWarning(null);
+        $('.warn-text').text('');
       }
     } else {
       var anyWarning = false, anyCritical = false;
       jQuery.each(data, function (key, value) {
         if(value.critical) {
           anyCritical = true;
-          $('.warn-text').text(key);
+          $('.warn-text').text(key == 'unconsciousness' ? 'unconscious' : key);
           PANIC111();
         }
       });
@@ -97,13 +100,14 @@ function updateChart() {
           if(value.warning) {
             anyWarning = true;
             showWarning('alert');
-            $('.warn-text').text(key);
+            $('.warn-text').text(key == 'unconsciousness' ? 'unconscious' : key);
           }
         });
       }
 
       if(!anyCritical && !anyWarning) {
         showWarning(null);
+        $('.warn-text').text('');
       }
     }
     // if(data.heartCritical || data.unconsciousnessCritical || data.sleepingCritical || data.seizureCritical) {
