@@ -15,8 +15,9 @@ module.exports =
     else
       this.warntimeHeadPose = null
 
-#    unconsciousnessWarning: warning
-#    unconsciousnessCritical: critical
+#    unconsciousness:
+#      warning: warning
+#      critical: critical
     unconsciousnessWarning: false
     unconsciousnessCritical: false
 
