@@ -43,7 +43,9 @@ $(document).ready(function() {
         enableHazardSystem(false);
         car.element.css('left', '225px');
         car.command = true;
-        car.lastState = true;
+        car.lastState = false;
+        $('.needle.dash-component-left').addClass('speed-130');
+        $('.needle.dash-component-right').removeClass('speed-0').addClass('speed-130');
         emergencyActive = false;
       }
     }
@@ -64,28 +66,20 @@ function roadCam(scale, translate) {
 }
 
 function runCar() {
-    car.command = true;
-    if (!car.animating) {
-        animStep(true);
-    }
+  car.command = true;
+  if (!car.animating) {
+    animStep(true);
+    car.animating = true;
+  }
 }
 
 function stopCar() {
     car.command = 0;
 }
 
-function animStep(manual) {
+function animStep() {
     var stepDuration = 1000;
     var stepSize = 25;
-
-    if (manual == null) {
-        if (car.command || car.lastState) {
-            ++car.animateCalls;
-            if (car.animateCalls % car.lanes.length != 0) {
-                return;
-            }
-        }
-    }
 
     var otherCars = $('.all-other-cars');
     if (car.command) {
@@ -95,7 +89,7 @@ function animStep(manual) {
             car.roadPosition += stepSize;
             car.lanes.animate({
                 'background-position-y': car.roadPosition + '%'
-            }, stepDuration, 'linear', animStep);
+            }, stepDuration, 'linear');
 
             if (parseInt(otherCars.css('margin-top')) > 4000) {
                 otherCars.css('margin-top', '-1500px');
@@ -103,34 +97,52 @@ function animStep(manual) {
                 otherCars.animate({'margin-top': '+=266'}, stepDuration, 'linear');
             }
         } else {
-            // Car was not moving -> Accelerate
-            car.roadPosition += 50;
-            car.lanes.animate({
-                'background-position-y': car.roadPosition + '%'
-            }, {
-                duration: 4000,
-                easing: 'easeInQuad',
-                complete: animStep
-            });
-            otherCars.animate({'margin-top': '-=200'}, 2000, 'swing');
-            setTimeout(function () {
-                otherCars.animate({'margin-top': '+=400'}, 2000, 'swing');
-            }, 2000);
+          // Car was not moving -> Accelerate
+          car.roadPosition += 50;
+          car.lanes.animate({
+              'background-position-y': car.roadPosition + '%'
+          }, {
+              duration: 4000,
+              easing: 'easeInQuad'
+          });
+          stepDuration = 4000;
+          otherCars.animate({'margin-top': '-=200'}, 2000, 'swing');
+          setTimeout(function () {
+              otherCars.animate({'margin-top': '+=400'}, 2000, 'swing');
+          }, 2000);
 
-            $('.needle.dash-component-left').addClass('speed-130');
-            $('.needle.dash-component-right').removeClass('speed-0').addClass('speed-130');
-            car.lastState = true;
+          $('.needle.dash-component-left').addClass('speed-130');
+          $('.needle.dash-component-right').removeClass('speed-0').addClass('speed-130');
+          car.lastState = true;
         }
     } else {
-      if(parseInt(otherCars.css('margin-top')) < -1500) {
-        otherCars.css('margin-top', '4000px');
+      // Car should stand still
+      if(car.lastState) {
+        // Car was moving -> stop it
+        car.lastState = false;
+        car.roadPosition += 30;
+        car.lanes.animate({
+          'background-position-y': car.roadPosition + '%'
+        }, 4000, 'easeOutQuad');
+        stepDuration = 4000;
+        otherCars.animate({'margin-top': '+=200'}, 2000, 'swing');
+        setTimeout(function () {
+          otherCars.animate({'margin-top': '-=400'}, 2000, 'swing');
+        }, 2000);
+
+        $('.needle.dash-component-left').removeClass('speed-130');
+        $('.needle.dash-component-right').removeClass('speed-130').addClass('speed-0');
       } else {
-        otherCars.animate({
-          'margin-top': '-=266'
-        }, stepDuration, 'linear');
-        setTimeout(animStep, stepDuration);
+        if(parseInt(otherCars.css('margin-top')) < -1500) {
+          otherCars.css('margin-top', '4000px');
+        } else {
+          otherCars.animate({
+            'margin-top': '-=266'
+          }, stepDuration, 'linear');
+        }
       }
     }
+    setTimeout(animStep, stepDuration);
 }
 
 function enableHazardSystem(enable){
