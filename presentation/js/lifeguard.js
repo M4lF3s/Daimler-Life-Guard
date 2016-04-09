@@ -200,6 +200,19 @@ function showWarning(type) {
   }
 }
 
+function showIndicator(state) {
+  var indicator = $('.indicator');
+  if (state) {
+    indicator.show();
+  }
+  else
+  {
+    indicator.hide();
+  }
+
+}
+
+
 function rejoinMotorway() {
   runCar();
   enableHazardSystem(false);
