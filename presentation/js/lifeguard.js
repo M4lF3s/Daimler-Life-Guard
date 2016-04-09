@@ -21,37 +21,39 @@ var car = {
     hazardFlasherOn: false
 };
 
-$(document).ready(function () {
-    car.element = $('.car.our-car');
-    car.road = $('.road');
-    car.lanes = car.road.find('.lane');
+$(document).ready(function() {
+  car.element = $('.car.our-car');
+  car.road = $('.road');
+  car.lanes = car.road.find('.lane');
 
-    runCar();
-    // roadCam(0.75, 100);
-    roadCam(0.4, 50);
+  runCar();
+  // roadCam(0.75, 100);
+  roadCam(0.4, 50);
 
-    Reveal.addEventListener('slidechanged', function (event) {
-        // event.previousSlide, event.currentSlide, event.indexh, event.indexv
-        var curVisible = $(event.currentSlide).hasClass('road-visible');
-        var lastVisible = $(event.previousSlide).hasClass('road-visible');
-        if (!lastVisible && curVisible) {
-            showRoad();
-        } else if (lastVisible && !curVisible) {
-            hideRoad();
-        } else if (lastVisible && curVisible) {
-            if (emergencyActive) {
-                enableHazardSystem(false);
-                car.element.css('left', '225px');
-                emergencyActive = false;
-            }
-        }
-    });
+  Reveal.addEventListener( 'slidechanged', function( event ) {
+    // event.previousSlide, event.currentSlide, event.indexh, event.indexv
+    var curVisible = $(event.currentSlide).hasClass('road-visible');
+    var lastVisible = $(event.previousSlide).hasClass('road-visible');
+    if(!lastVisible && curVisible) {
+      showRoad();
+    } else if(lastVisible && !curVisible) {
+      hideRoad();
+    } else if(lastVisible && curVisible) {
+      if(emergencyActive) {
+        enableHazardSystem(false);
+        car.element.css('left', '225px');
+        car.command = true;
+        car.lastState = true;
+        emergencyActive = false;
+      }
+    }
+  });
 
-    Reveal.addEventListener('ready', function (e) {
-        if ($(e.currentSlide).hasClass('road-visible')) {
-            showRoad();
-        }
-    });
+  Reveal.addEventListener('ready', function (e) {
+    if($(e.currentSlide).hasClass('road-visible')) {
+      showRoad();
+    }
+  });
 });
 
 function roadCam(scale, translate) {
@@ -120,51 +122,39 @@ function animStep(manual) {
             car.lastState = true;
         }
     } else {
-        // Car should stand still
-        if (car.lastState) {
-            // Car was moving -> stop it
-            car.lastState = false;
-            car.roadPosition += 30;
-            car.lanes.animate({
-                'background-position-y': car.roadPosition + '%'
-            }, 4000, 'easeOutQuad', animStep);
-            otherCars.animate({'margin-top': '+=200'}, 2000, 'swing');
-            setTimeout(function () {
-                otherCars.animate({'margin-top': '-=400'}, 2000, 'swing');
-            }, 2000);
-
-            $('.needle.dash-component-left').removeClass('speed-130');
-            $('.needle.dash-component-right').removeClass('speed-130').addClass('speed-0');
-        } else {
-            if (parseInt(otherCars.css('margin-top')) < -1500) {
-                otherCars.css('margin-top', '4000px');
-            } else {
-                otherCars.animate({
-                    'margin-top': '-=266'
-                }, stepDuration, 'linear', animStep);
-            }
-        }
+      if(parseInt(otherCars.css('margin-top')) < -1500) {
+        otherCars.css('margin-top', '4000px');
+      } else {
+        otherCars.animate({
+          'margin-top': '-=266'
+        }, stepDuration, 'linear');
+        setTimeout(animStep, stepDuration);
+      }
     }
 }
-function enableHazardSystem(enable) {
-    car.hazardFlasherEnabled = enable;
-    changeCarImageBlink();
+
+function enableHazardSystem(enable){
+	car.hazardFlasherEnabled = enable;
+	changeCarImageBlink();
     showIndicator(enable);
-
 }
-function changeCarImageBlink() {
-    if (car.hazardFlasherEnabled == true) {
-        if (car.hazardFlasherOn == false) {
-            car.element.attr("src", "img/e-class_warnblinker.png");
-            car.hazardFlasherOn = true;
-            setTimeout(changeCarImageBlink, 500)
-        }
-        else {
-            car.element.attr("src", "img/e-class.png");
-            car.hazardFlasherOn = false;
-            setTimeout(changeCarImageBlink, 500)
-        }
-    }
+
+function changeCarImageBlink(){
+	if(car.hazardFlasherEnabled == true){
+		if(car.hazardFlasherOn == false){
+			car.element.attr("src","img/e-class_warnblinker.png");
+			car.hazardFlasherOn = true;
+			setTimeout(changeCarImageBlink,500)	
+		}
+		else{
+			car.element.attr("src","img/e-class.png");
+			car.hazardFlasherOn = false;
+			setTimeout(changeCarImageBlink,500)
+		}
+	} else {
+    car.element.attr("src","img/e-class.png");
+    car.hazardFlasherOn = false;
+  }
 }
 
 function changeLane(dir) {

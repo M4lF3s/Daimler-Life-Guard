@@ -10,7 +10,7 @@ module.exports =
       warning = true
       if this.warntimeHeadPose == null
         this.warntimeHeadPose = date
-      if (date - this.warntimeHeadPose) >= 5000
+      if (date - this.warntimeHeadPose) >= 3000
         critical = true
     else
       this.warntimeHeadPose = null
