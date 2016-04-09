@@ -509,6 +509,12 @@ body {
   transform: rotate(-60deg);
 }
 
+.indicator.dash-component-left {
+  background-image: url('../../img/blinkerlinks.png');
+}
+.indicator.dash-component-right {
+  background-image: url('../../img/blinkerrechts.png');
+}
 /*********************************************
  * ANIMATIONS
  *********************************************/
