@@ -13,15 +13,17 @@ module.exports =
         this.warntimePulse = date
       if (date - this.warntimePulse) >= 5000
         critical = true
+    else
+      this.warntimePulse = null
+      this.warntimeHeadPose = null
 
-#    if sensorAnalyzers.headPose == 1
+#    if sensorAnalyzers.pose == 1
 #      warning = true
 #      if this.warntimeHeadPose == null
 #        this.warntimeHeadPose = date
 #      if (date - this.warntimeHeadPose) >= 5000
 #        critical = true
 
-    heartWarning: warning
-    heartCritical: critical
-#    heartWarning: false
-#    heartCritical: false
+    heart:
+      warning: warning
+      critical: critical

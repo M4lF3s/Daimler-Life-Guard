@@ -12,6 +12,8 @@ module.exports =
         this.warntimeEyesOpen = date
       if (date - this.warntimeEyesOpen) >= 5000
         critical = true
+    else
+      this.warntimeEyesOpen = null
 
     sleepingWarning: warning
     sleepingCritical: critical
