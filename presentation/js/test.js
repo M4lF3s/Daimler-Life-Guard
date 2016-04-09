@@ -11,7 +11,7 @@ var charts = {
     chart: null,
     title: "EKG",
     data: [],
-    limit: 400
+    limit: 1000
   },
   muscleActivity: {
     id: "chartContainerMuscle",
@@ -43,17 +43,19 @@ function updateChart() {
     var time = new Date(data.timestamp);
 
     jQuery.each(charts, function (name, chart) {
+      var lastTime = chart.lastTime;
+      var deltaTime = time - lastTime;
+      chart.lastTime = time;
+
       if(name in data) {
         if(Array.isArray(data[name])) {
-          var mapped = data[name].map(function(a) {
-            return {
-              x: time,
-              y: a
-            };
-          });
-          jQuery.each(mapped, function (index, obj) {
-            chart.data.push(obj);
-          });
+          var arrayLength = data[name].length;
+          for(var i = 0; i < arrayLength; ++i) {
+            chart.data.push({
+              x: time - deltaTime * ((arrayLength - (i + 1)) / arrayLength),
+              y: data[name][i]
+            });
+          }
         } else {
           chart.data.push({
             x: time,

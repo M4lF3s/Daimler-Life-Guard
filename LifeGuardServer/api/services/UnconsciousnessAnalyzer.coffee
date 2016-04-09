@@ -13,6 +13,8 @@ module.exports =
       if (date - this.warntimeHeadPose) >= 5000
         critical = true
 
-    unconsciousnessWarning: warning
-    unconsciousnessCritical: critical
+#    unconsciousnessWarning: warning
+#    unconsciousnessCritical: critical
+    unconsciousnessWarning: false
+    unconsciousnessCritical: false
 

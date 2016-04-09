@@ -8,7 +8,7 @@ module.exports =
     pulse: (pulse) -> PulseAnalyzer.analyze(pulse)
     eyesOpen: (eyesOpen) -> EyesOpenAnalyzer.analyze(eyesOpen)
     headPose: (pose) -> HeadPoseAnalyzer.analyze(pose)
-    muscleActivity: (isSeizure) -> MuscleActivityAnalyzer.analyze(isSeizure)
+    isSeizure: (isSeizure) -> MuscleActivityAnalyzer.analyze(isSeizure)
     acceleration: (isAccelerating) -> AccelerationAnalyzer.analyze(isAccelerating)
 
   # Analyzes the preprocessed sensor values with respect to a specific disease
@@ -32,12 +32,9 @@ module.exports =
     # Step 1: Analyze the latest value of each sensor
     for property, analyzer of this.sensorAnalyzers
       analyzedSensors[property] = analyzer(latestMeasurement[property])
-    console.log latestMeasurement
-    console.log(analyzedSensors)
 
     # Step 2: Analyze the preprocessed sensor values for symptoms
     for property, analyzer of this.symptomAnalyzers
       result = extend(result, analyzer(analyzedSensors));
 
-    console.log(result)
     result

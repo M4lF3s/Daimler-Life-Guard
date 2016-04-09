@@ -30,7 +30,6 @@
         }
       }
       this.healthCondition = AnalysisService.analyze(this.latestData());
-      console.log("Data count: " + this.sensorData.length);
       return res.ok();
     },
     latestData: function() {

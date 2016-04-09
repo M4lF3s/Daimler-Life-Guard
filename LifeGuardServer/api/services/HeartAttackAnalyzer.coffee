@@ -14,12 +14,14 @@ module.exports =
       if (date - this.warntimePulse) >= 5000
         critical = true
 
-    if sensorAnalyzers.headPose == 1
-      warning = true
-      if this.warntimeHeadPose == null
-        this.warntimeHeadPose = date
-      if (date - this.warntimeHeadPose) >= 5000
-        critical = true
+#    if sensorAnalyzers.headPose == 1
+#      warning = true
+#      if this.warntimeHeadPose == null
+#        this.warntimeHeadPose = date
+#      if (date - this.warntimeHeadPose) >= 5000
+#        critical = true
 
     heartWarning: warning
     heartCritical: critical
+#    heartWarning: false
+#    heartCritical: false

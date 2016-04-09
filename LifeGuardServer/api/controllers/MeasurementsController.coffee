@@ -28,7 +28,8 @@ module.exports =
 
     # Successfully received new data -> Analyze
     this.healthCondition = AnalysisService.analyze this.latestData()
-    console.log "Data count: #{this.sensorData.length}"
+#    console.log "Latest data"
+#    console.log data
 
     # Finish request
     res.ok()
