@@ -41,7 +41,9 @@ $(document).ready(function() {
       hideRoad();
     } else if(lastVisible && curVisible) {
       if(emergencyActive) {
-        rejoinMotorway();
+        enableHazardSystem(false);
+        car.element.css('left', '225px');
+        emergencyActive = false;
       }
     }
   });
