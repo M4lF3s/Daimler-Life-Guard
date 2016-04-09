@@ -148,6 +148,7 @@ function animStep(manual) {
 function enableHazardSystem(enable){
 	car.hazardFlasherEnabled = enable;
 	changeCarImageBlink();
+    
 }
 function changeCarImageBlink(){
 	if(car.hazardFlasherEnabled == true){
