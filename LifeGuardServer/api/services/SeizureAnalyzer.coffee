@@ -16,7 +16,7 @@ module.exports =
     else
       this.warntimeMuscle = null
 
-    if sensorAnalyzers.acceleration == 1
+    if sensorAnalyzers.isShaking == 1
       warning = true
       if this.warntimeAcceleration == null
         this.warntimeAcceleration = date

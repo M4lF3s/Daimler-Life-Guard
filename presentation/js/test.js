@@ -89,15 +89,21 @@ function updateChart() {
         if(value.critical) {
           anyCritical = true;
           $('.warn-text').text(key);
+          PANIC111();
         }
       });
       if(!anyCritical) {
         jQuery.each(data, function (key, value) {
-          if(value.critical) {
+          if(value.warning) {
             anyWarning = true;
+            showWarning('alert');
             $('.warn-text').text(key);
           }
         });
+      }
+
+      if(!anyCritical && !anyWarning) {
+        showWarning(null);
       }
     }
     // if(data.heartCritical || data.unconsciousnessCritical || data.sleepingCritical || data.seizureCritical) {

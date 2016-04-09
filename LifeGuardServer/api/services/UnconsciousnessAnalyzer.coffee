@@ -6,7 +6,7 @@ module.exports =
     critical = false
     date = Date.now()
 
-    if sensorAnalyzers.headPose == 1
+    if sensorAnalyzers.pose == 1
       warning = true
       if this.warntimeHeadPose == null
         this.warntimeHeadPose = date
@@ -15,9 +15,9 @@ module.exports =
     else
       this.warntimeHeadPose = null
 
-#    unconsciousness:
-#      warning: warning
-#      critical: critical
-    unconsciousnessWarning: false
-    unconsciousnessCritical: false
+    unconsciousness:
+      warning: warning
+      critical: critical
+#    unconsciousnessWarning: false
+#    unconsciousnessCritical: false
 
