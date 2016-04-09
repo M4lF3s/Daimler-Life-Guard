@@ -43,6 +43,8 @@ $(document).ready(function() {
       if(emergencyActive) {
         enableHazardSystem(false);
         car.element.css('left', '225px');
+        car.command = true;
+        car.lastState = true;
         emergencyActive = false;
       }
     }
@@ -142,7 +144,8 @@ function animStep(manual) {
       } else {
         otherCars.animate({
           'margin-top': '-=266'
-        }, stepDuration, 'linear', animStep);
+        }, stepDuration, 'linear');
+        setTimeout(animStep, stepDuration);
       }
     }
   }
@@ -150,8 +153,8 @@ function animStep(manual) {
 function enableHazardSystem(enable){
 	car.hazardFlasherEnabled = enable;
 	changeCarImageBlink();
-    
 }
+
 function changeCarImageBlink(){
 	if(car.hazardFlasherEnabled == true){
 		if(car.hazardFlasherOn == false){
@@ -164,7 +167,10 @@ function changeCarImageBlink(){
 			car.hazardFlasherOn = false;
 			setTimeout(changeCarImageBlink,500)
 		}
-	}
+	} else {
+    car.element.attr("src","img/e-class.png");
+    car.hazardFlasherOn = false;
+  }
 }
 
 function changeLane(dir) {
