@@ -526,9 +526,28 @@ body {
 
 .indicator.dash-component-left {
   background-image: url('../../img/blinkerlinks.png');
+  position: absolute;
+  left: 275px;
+  top: 40px;
+
+  animation-name: indicator-flash;
+  animation-duration: 0.8s;
+  animation-timing-function: step-start;
+  animation-iteration-count: infinite;
 }
 .indicator.dash-component-right {
   background-image: url('../../img/blinkerrechts.png');
+  position: absolute;
+  right: 275px;
+  top: 40px;
+
+  animation-name: indicator-flash;
+  animation-duration: 0.8s;
+  animation-timing-function: step-start;
+  animation-iteration-count: infinite;
+}
+.indicator{
+
 }
 /*********************************************
  * ANIMATIONS
@@ -567,8 +586,13 @@ body {
   55% { opacity: 1; }
   100% { opacity: 0; }
 }
-
+@keyframes indicator-flash {
+  0% {opacity: 0;}
+  50% {opacity: 1;}
+  100% {opacity:0;}
+}
 @keyframes other-car-driving {
   from { top: -10%; }
   to { top: 100%; }
 }
+
