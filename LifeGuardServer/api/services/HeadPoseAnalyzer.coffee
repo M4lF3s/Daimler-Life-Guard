@@ -9,4 +9,4 @@ module.exports =
     else if Math.abs(pose.rotation.z) > 50
       1
     else
-      0
+      0 # 
