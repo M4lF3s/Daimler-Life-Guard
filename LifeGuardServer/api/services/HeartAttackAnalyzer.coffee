@@ -11,7 +11,7 @@ module.exports =
       warning = true
       if this.warntimePulse == null
         this.warntimePulse = date
-      if (date - this.warntimePulse) >= 5000
+      if (date - this.warntimePulse) >= 3000
         critical = true
     else
       this.warntimePulse = null
@@ -21,7 +21,7 @@ module.exports =
 #      warning = true
 #      if this.warntimeHeadPose == null
 #        this.warntimeHeadPose = date
-#      if (date - this.warntimeHeadPose) >= 5000
+#      if (date - this.warntimeHeadPose) >= 3000
 #        critical = true
 
     heart:
