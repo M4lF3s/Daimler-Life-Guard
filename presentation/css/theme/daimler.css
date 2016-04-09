@@ -461,6 +461,21 @@ body {
   background-image: url('../../img/hazard.png');
 }
 
+.cockpit-dashboard .warn-text {
+  position: absolute;
+  z-index: 2;
+  top: 60%;
+  left: 50%;
+
+  width: 100px;
+  height: 30px;
+  margin-left: -15px;
+  margin-top: -80px;
+
+  color: red;
+  font-size: 20pt;
+}
+
 .dashmeter {
   position: absolute;
   z-index: 2;

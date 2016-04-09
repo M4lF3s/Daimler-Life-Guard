@@ -73,20 +73,51 @@ function updateChart() {
   });
 
   jQuery.getJSON("http://192.168.2.108:1337/measurements/warnings", function (data) {
-    if(data.heartCritical || data.unconsciousnessCritical || data.sleepingCritical || data.seizureCritical) {
-      showWarning('hazard');
-
-      if(!emergencyActive) {
-        emergencyActive = true;
-        emergencyPullOver();
+    var criticalFilter = $(Reveal.getCurrentSlide()).attr('data-critical');
+    if(criticalFilter != null) {
+      var relevantData = data[criticalFilter];
+      if(relevantData != null && relevantData.critical) {
+        PANIC111();
+      } else if(relevantData != null && relevantData.warning) {
+        showWarning('alert');
+      } else {
+        showWarning(null);
       }
-
-    } else if(data.heartWarning || data.unconsciousnessWarning || data.sleepingWarning || data.seizureWarning) {
-      showWarning('alert');
     } else {
-      showWarning(null);
+      var anyWarning = false, anyCritical = false;
+      jQuery.each(data, function (key, value) {
+        if(value.critical) {
+          anyCritical = true;
+          $('.warn-text').text(key);
+        }
+      });
+      if(!anyCritical) {
+        jQuery.each(data, function (key, value) {
+          if(value.critical) {
+            anyWarning = true;
+            $('.warn-text').text(key);
+          }
+        });
+      }
     }
+    // if(data.heartCritical || data.unconsciousnessCritical || data.sleepingCritical || data.seizureCritical) {
+    //
+    //
+    // } else if(data.heartWarning || data.unconsciousnessWarning || data.sleepingWarning || data.seizureWarning) {
+    //   showWarning('alert');
+    // } else {
+    //   showWarning(null);
+    // }
   });
+}
+
+function PANIC111() {
+  showWarning('hazard');
+
+  if(!emergencyActive) {
+    emergencyActive = true;
+    emergencyPullOver();
+  }
 }
 
 $(document).ready(function() {

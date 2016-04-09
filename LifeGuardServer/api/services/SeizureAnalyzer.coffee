@@ -25,6 +25,7 @@ module.exports =
     else
       this.warntimeAcceleration = null
 
-    seizureWarning: warning
-    seizureCritical: critical
+    seizure:
+      warning: warning
+      critical: critical
 
