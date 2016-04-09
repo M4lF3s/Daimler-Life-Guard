@@ -533,7 +533,7 @@ body {
   position: absolute;
   left: 275px;
   top: 40px;
-
+  display:none;
   animation-name: indicator-flash;
   animation-duration: 0.8s;
   animation-timing-function: step-start;
@@ -544,7 +544,7 @@ body {
   position: absolute;
   right: 275px;
   top: 40px;
-
+  display:none;
   animation-name: indicator-flash;
   animation-duration: 0.8s;
   animation-timing-function: step-start;
