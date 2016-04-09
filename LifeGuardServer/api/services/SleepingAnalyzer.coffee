@@ -15,5 +15,6 @@ module.exports =
     else
       this.warntimeEyesOpen = null
 
-    sleepingWarning: warning
-    sleepingCritical: critical
+    sleeping:
+      warning: warning
+      critical: critical
